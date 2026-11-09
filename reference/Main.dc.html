@@ -1,0 +1,1771 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<title>Nivis – 3D mapa Slovenska</title>
+<script src="./support.js"></script>
+<script src="/_blob/6143f5ab9a80a0f36afe57aeb31326df"></script>
+<script src="/_blob/112fa2b71a68c53564928d9681f4ddae"></script>
+<script src="/_blob/6ac7b82a0553df19d793ad02be5d8376"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&amp;family=Nunito:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1A7A43}a:hover{color:#125C31}
+.nv-root{position:relative;width:100%;overflow:hidden;background:#A9CBE3;font-family:'Nunito',system-ui,sans-serif;color:#1E2B33;user-select:none;-webkit-user-select:none}
+.nv-hud{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.nv-hud button{pointer-events:auto}
+.nv-glass{background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;box-shadow:0 4px 14px rgba(20,40,60,0.14)}
+.nv-tools{position:absolute;right:10px;bottom:232px;display:flex;flex-direction:column;gap:8px}
+.nv-legend{position:absolute;right:62px;bottom:232px;width:210px}
+.nv-hint{position:absolute;left:10px;bottom:232px}
+.nv-info{position:absolute;left:10px;bottom:232px;width:232px}
+.nv-dock{position:absolute;left:0;right:0;bottom:0;box-sizing:border-box;border-radius:24px 24px 0 0;padding:10px 10px 16px;display:flex;flex-direction:column;gap:8px}
+.nv-cards{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.nv-cards > *{flex:0 0 116px}
+.nv-card{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.nv-cardtxt{display:flex;flex-direction:column;align-items:center;gap:1px}
+.nv-pic{width:100%;height:44px}
+.nv-modal{position:absolute;inset:0;background:rgba(18,32,44,0.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;z-index:20}
+.nv-modalcard{width:100%;max-width:540px;max-height:100%;overflow:auto;box-sizing:border-box;background:#FFFFFF;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,0.3)}
+@media (orientation: landscape) and (min-width: 640px){
+.nv-auto .nv-hud{right:auto;width:min(560px, calc(100% - 336px))}
+.nv-auto .nv-dock{left:auto;right:10px;top:10px;bottom:10px;width:292px;border-radius:22px;overflow:auto}
+.nv-auto .nv-cards{flex-direction:column;overflow:visible}
+.nv-auto .nv-cards > *{flex:none}
+.nv-auto .nv-card{flex-direction:row;text-align:left;gap:10px;padding:8px !important}
+.nv-auto .nv-cardtxt{align-items:flex-start}
+.nv-auto .nv-pic{width:74px;height:62px;flex:none}
+.nv-auto .nv-tools{right:314px;bottom:10px}
+.nv-auto .nv-legend{right:366px;bottom:10px}
+.nv-auto .nv-hint{bottom:10px}
+.nv-auto .nv-info{bottom:10px}
+}
+</style>
+</helmet>
+<div ref="{{setRoot}}" class="{{rootClass}}" style="height: {{rootH}}">
+
+<canvas ref="{{setCanvas}}" aria-label="Interaktívna 3D mapa Slovenska" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab"></canvas>
+
+<div class="nv-hud">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<div class="nv-glass" style="padding: 6px 9px; display: flex; flex-direction: column; gap: 1px">
+<div style="display: flex; align-items: center; gap: 5px">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9A6200" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M15 8.5a4 4 0 1 0 0 7M8 11h5M8 13.5h5"></path></svg>
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; white-space: nowrap">{{moneyText}}</span>
+</div>
+<span style="font-size: 10.5px; font-weight: 700; color: {{moneyLabelColor}}; white-space: nowrap">{{moneyLabel}} · {{profitText}}</span>
+</div>
+<div class="nv-glass" style="padding: 6px 9px; display: flex; flex-direction: column; gap: 1px">
+<div style="display: flex; align-items: center; gap: 5px">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1A7A43" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z"></path></svg>
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px">{{cleanText}}</span>
+<span style="font-size: 11px; font-weight: 800; color: #FFFFFF; background: {{bonusBg}}; border-radius: 6px; padding: 1px 5px">{{bonusText}}</span>
+</div>
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68; white-space: nowrap">Energ. účinnosť</span>
+</div>
+<div class="nv-glass" style="padding: 6px 9px; display: flex; flex-direction: column; gap: 1px">
+<div style="display: flex; align-items: center; gap: 5px">
+<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2B6CA3" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path><circle cx="17" cy="9" r="2.5"></circle><path d="M16 14c2.8 0 5 2.2 5 5"></path></svg>
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; white-space: nowrap">{{popText}}</span>
+</div>
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68; white-space: nowrap">Populácia · {{popDelta}}</span>
+</div>
+</div>
+
+<div class="nv-glass" style="padding: 7px 9px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px">
+<button aria-label="{{playLabel}}" onClick="{{togglePlay}}" style="flex: none; width: 34px; height: 34px; border-radius: 10px; border: none; background: #1A7A43; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<sc-if value="{{running}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg></sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></sc-if>
+</button>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; white-space: nowrap">{{dateText}}</span>
+<span style="font-size: 11px; font-weight: 700; color: #4F5F68">{{yearText}}</span>
+</div>
+<div role="group" aria-label="Rýchlosť" style="display: flex; gap: 3px; background: #EEF2F4; border-radius: 10px; padding: 3px">
+<sc-for list="{{speeds}}" as="sp" hint-placeholder-count="3">
+<button aria-pressed="{{sp.on}}" onClick="{{sp.set}}" style="border: none; border-radius: 8px; height: 28px; min-width: 34px; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; background: {{sp.bg}}; color: {{sp.fg}}">{{sp.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="height: 5px; border-radius: 3px; background: #E3E9EC; overflow: hidden"><div style="height: 5px; width: {{progress}}; background: #1A7A43"></div></div>
+<sc-for list="{{missions}}" as="ms" hint-placeholder-count="2">
+<div style="display: flex; align-items: baseline; gap: 6px; font-size: 11px; font-weight: 700; color: #33444D"><span style="color: {{ms.color}}; font-weight: 800">{{ms.icon}}</span><span style="flex: 1; min-width: 0">{{ms.text}}</span><span style="color: {{ms.color}}; white-space: nowrap">{{ms.prog}}</span></div>
+</sc-for>
+</div>
+
+<div class="nv-glass" style="padding: 7px 9px; display: flex; flex-direction: column; gap: 5px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 800">
+<span>Výroba <span style="color: {{balanceColor}}">{{prodText}}</span> / spotreba {{demandText}} MW</span>
+<span style="white-space: nowrap">{{priceText}} €/MWh <span style="color: {{trendColor}}">{{trendText}}</span></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; align-items: end" aria-label="Dnešný deň po štyroch hodinách">
+<sc-for list="{{slots}}" as="sl" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68; text-align: center; white-space: nowrap">{{sl.top}}</span>
+<div style="position: relative; height: 40px; display: flex; flex-direction: column-reverse; border-radius: 3px; overflow: hidden; background: #EEF2F4">
+<sc-for list="{{sl.segs}}" as="sg" hint-placeholder-count="2"><div style="flex: none; height: {{sg.h}}; background: {{sg.c}}"></div></sc-for>
+<div style="position: absolute; left: 0; right: 0; bottom: {{sl.demB}}; height: 2px; background: #1E2B33"></div>
+</div>
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68; text-align: center">{{sl.label}} h</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 2px 9px; flex-wrap: wrap; font-size: 10.5px; font-weight: 700; color: #3A4A52">
+<sc-for list="{{mix}}" as="m" hint-placeholder-count="6"><span style="display: inline-flex; align-items: center; gap: 3px"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{m.c}}"></span>{{m.label}} {{m.mw}}</span></sc-for>
+</div>
+<div style="display: flex; gap: 4px 10px; flex-wrap: wrap; font-size: 11px; font-weight: 700; color: #33444D; border-top: 1px solid #E6ECEF; padding-top: 4px">
+<span>{{tempText}}</span><span>oblačnosť {{cloudText}}</span><span>vietor {{windText}}</span><span>rieky {{flowText}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; font-size: 11px; font-weight: 700; color: #33444D; border-top: 1px solid #E6ECEF; padding-top: 4px">
+<span>CO₂ dnes <b style="color: {{co2Color}}">{{co2DayText}}</b> · {{co2Text}} g/kWh</span>
+<span>CO₂ tento rok <b style="color: {{co2Color}}">{{co2YearText}}</b></span>
+<span>Prisťahovaní tento rok <b style="color: #1A7A43">+{{arrText}}</b></span>
+<span>Odsťahovaní tento rok <b style="color: #A33A22">−{{depText}}</b></span>
+</div>
+</div>
+
+<sc-for list="{{events}}" as="ev" hint-placeholder-count="0">
+<div style="background: {{ev.bg}}; color: #FFFFFF; border-radius: 12px; padding: 6px 10px; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; gap: 8px; box-shadow: 0 4px 14px rgba(20,40,60,0.2)"><span>{{ev.name}}</span><span style="opacity: 0.9; white-space: nowrap">{{ev.left}}</span></div>
+</sc-for>
+<sc-if value="{{showToast}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="align-self: center; background: #1E2B33; color: #FFFFFF; border-radius: 14px; padding: 8px 14px; font-size: 12.5px; font-weight: 800; text-align: center; box-shadow: 0 6px 18px rgba(20,40,60,0.25); max-width: 100%">{{toastText}}</div>
+</sc-if>
+</div>
+
+<div class="nv-tools">
+<button aria-label="Legenda mapy" aria-expanded="{{legendOpen}}" onClick="{{toggleLegend}}" style="width: 44px; height: 44px; border-radius: 14px; border: none; background: rgba(255,255,255,0.92); color: #1E2B33; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(20,40,60,0.14); cursor: pointer"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg></button>
+<button aria-label="Priblížiť" onClick="{{zoomIn}}" style="width: 44px; height: 44px; border-radius: 14px; border: none; background: rgba(255,255,255,0.92); color: #1E2B33; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(20,40,60,0.14); cursor: pointer"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+<button aria-label="Oddialiť" onClick="{{zoomOut}}" style="width: 44px; height: 44px; border-radius: 14px; border: none; background: rgba(255,255,255,0.92); color: #1E2B33; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(20,40,60,0.14); cursor: pointer"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+<button aria-label="Zobraziť celé Slovensko" onClick="{{viewAll}}" style="width: 44px; height: 44px; border-radius: 14px; border: none; background: rgba(255,255,255,0.92); color: #1E2B33; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(20,40,60,0.14); cursor: pointer"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path><path d="M9 4v13M15 7v13"></path></svg></button>
+</div>
+
+<sc-if value="{{legendOpen}}" hint-placeholder-val="{{ false }}">
+<div class="nv-legend nv-glass" role="region" aria-label="Legenda mapy" style="padding: 12px; display: flex; flex-direction: column; gap: 7px; font-size: 12px; font-weight: 700">
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 6px; border-radius: 3px; background: #2F78B5; box-shadow: 0 0 0 2px #A9DDF5"></span>Rieka (s názvom)</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 14px; border-radius: 4px; background: #2F78B5; box-shadow: 0 0 0 2px #A9DDF5"></span>Jazero / vodná nádrž</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 3px; background: #FFFFFF; box-shadow: 0 0 0 1px #8597A3"></span>Hranica Slovenska</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 5px; border-radius: 2px; background: #45484C"></span>Diaľnica</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 3px; border-radius: 2px; background: #7A7E83"></span>Cesta</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 14px; border-radius: 4px; background: #B4AFA4"></span>Mesto</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 14px; border-radius: 4px; background: #355E2E"></span>Les</span>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 26px; height: 14px; border-radius: 4px; background: #E8D9B5; opacity: 0.8"></span>Stavba vo výstavbe</span>
+<span style="font-size: 11px; font-weight: 600; color: #4F5F68; line-height: 1.35">Hranice, rieky, jazerá a cesty: Natural Earth. Výšky terénu sú modelované.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{showInfo}}" hint-placeholder-val="{{ false }}">
+<div class="nv-info nv-glass" style="padding: 12px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; line-height: 1.2">{{infoName}}</span>
+<button aria-label="Zavrieť" onClick="{{closeInfo}}" style="flex: none; width: 28px; height: 28px; border-radius: 8px; border: none; background: #EEF2F4; color: #1E2B33; cursor: pointer; font-size: 16px; line-height: 1">×</button>
+</div>
+<span style="font-size: 12px; font-weight: 800; color: {{infoStatusColor}}">{{infoStatus}}</span>
+<sc-for list="{{infoRows}}" as="r" hint-placeholder-count="4"><div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 700"><span style="color: #4F5F68">{{r.k}}</span><span>{{r.v}}</span></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ true }}">
+<div class="nv-hint" style="background: rgba(30,43,51,0.72); color: #FFFFFF; border-radius: 999px; padding: 6px 12px; font-size: 11px; font-weight: 700; pointer-events: none">Ťahaj = posun · pravé tlačidlo = otáčanie · klik na elektráreň = detail</div>
+</sc-if>
+
+<sc-if value="{{showTip}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: {{tipLeft}}; top: {{tipTop}}; transform: translate(-50%, -100%); background: {{tipBg}}; color: #FFFFFF; border-radius: 12px; padding: 7px 11px; display: flex; flex-direction: column; gap: 1px; white-space: nowrap; box-shadow: 0 6px 18px rgba(20,40,60,0.25); pointer-events: none; z-index: 6">
+<span style="font-size: 13px; font-weight: 800">{{tipTitle}}</span>
+<span style="font-size: 11px; font-weight: 700; opacity: 0.92">{{tipSub}}</span>
+</div>
+</sc-if>
+
+<section ref="{{setDock}}" class="nv-dock" aria-label="Stavby" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 -8px 24px rgba(20,40,60,0.16)">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 0 4px; flex-wrap: wrap">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 16px">Postav elektráreň</span>
+<span style="font-size: 11.5px; font-weight: 700; color: #4F5F68">Potiahni ju na mapu</span>
+</div>
+<div class="nv-cards">
+<sc-for list="{{items}}" as="item" hint-placeholder-count="5">
+<button class="nv-card" aria-label="{{item.aria}}" onPointerDown="{{item.start}}" style="touch-action: none; cursor: grab; border: 1px solid #DCE5E9; background: #FFFFFF; border-radius: 16px; padding: 7px 6px; font-family: 'Nunito', sans-serif; color: #1E2B33; opacity: {{item.opacity}}">
+<span class="nv-pic" style="border-radius: 11px; background: {{item.tint}}; display: flex; align-items: flex-end; justify-content: center; overflow: hidden">
+<sc-if value="{{item.isWind}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><path d="M0 46 L0 38 Q28 30 56 36 L56 46 Z" fill="#8DBE57"></path><path d="M26.6 40 L29.4 40 L28.6 12 L27.4 12 Z" fill="#F4F6F6"></path><path d="M44 40 L45.4 40 L45 24 L44.4 24 Z" fill="#E6ECEE"></path><g transform="translate(28 11)"><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF" stroke="#9FB0BA" stroke-width="0.5"></path><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF" stroke="#9FB0BA" stroke-width="0.5" transform="rotate(120)"></path><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF" stroke="#9FB0BA" stroke-width="0.5" transform="rotate(240)"></path><circle r="1.6" fill="#AEBBC2"></circle></g><g transform="translate(44.7 23.5) scale(0.55)"><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF"></path><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF" transform="rotate(120)"></path><path d="M0 0 L-1.4 -2 L-0.4 -11 L1.3 -2 Z" fill="#FFFFFF" transform="rotate(240)"></path></g></svg></sc-if>
+<sc-if value="{{item.isHydro}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><path d="M0 18 L10 6 L20 20 Z" fill="#6E8C5E"></path><path d="M56 16 L46 4 L36 20 Z" fill="#5B7850"></path><path d="M6 20 L50 18 L46 24 L10 25 Z" fill="#2F78B5"></path><path d="M10 24 Q28 29 46 23 L44 38 Q28 42 12 38 Z" fill="#D7D2CA"></path><path d="M28 27 Q37 26 46 23 L44 38 Q36 41 28 41 Z" fill="#B9B2A6"></path><path d="M25 27 L31 27 L32 42 L24 42 Z" fill="#9AD5F0"></path><path d="M0 46 L8 40 L28 43 L48 40 L56 46 Z" fill="#2F78B5"></path></svg></sc-if>
+<sc-if value="{{item.isCoal}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><circle cx="40" cy="7" r="5" fill="#9EA3A6" opacity="0.7"></circle><circle cx="14" cy="14" r="6" fill="#FFFFFF" opacity="0.95"></circle><path d="M5 46 C9 36 9 28 7 20 L21 20 C19 28 19 36 23 46 Z" fill="#DCD6CD"></path><path d="M14 46 L23 46 C19 36 19 28 21 20 L14 20 Z" fill="#BDB6AB"></path><path d="M24 30 L52 30 L52 46 L24 46 Z" fill="#C9C2B6"></path><path d="M24 28 L52 28 L52 31 L24 31 Z" fill="#7D858A"></path><path d="M38 10 L42 10 L42 30 L38 30 Z" fill="#ECE8E2"></path><path d="M38 10 L42 10 L42 13 L38 13 Z M38 18 L42 18 L42 20 L38 20 Z" fill="#C8462F"></path><path d="M27 36 L49 36 L49 39 L27 39 Z" fill="#56656E"></path></svg></sc-if>
+<sc-if value="{{item.isNuclear}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><circle cx="16" cy="10" r="7" fill="#FFFFFF"></circle><circle cx="33" cy="14" r="5.5" fill="#FFFFFF" opacity="0.9"></circle><path d="M5 46 C9 36 9 28 7 18 L25 18 C23 28 23 36 27 46 Z" fill="#DCD6CD"></path><path d="M16 46 L27 46 C23 36 23 28 25 18 L16 18 Z" fill="#BDB6AB"></path><path d="M26 46 C29 39 29 33 28 24 L39 24 C38 33 38 39 41 46 Z" fill="#D3CDC3"></path><path d="M42 46 L42 38 A6.5 6.5 0 0 1 55 38 L55 46 Z" fill="#E9E5DE"></path><path d="M48.5 31.5 A6.5 6.5 0 0 1 55 38 L55 46 L48.5 46 Z" fill="#C9C3B8"></path></svg></sc-if>
+<sc-if value="{{item.isBattery}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><path d="M0 46 L0 40 L56 38 L56 46 Z" fill="#9CC266"></path><path d="M4 41 L52 39 L52 42 L4 44 Z" fill="#B9B6AE"></path><rect x="6" y="28" width="12" height="11" rx="1" fill="#E9EDEF" stroke="#9FB0BA" stroke-width="0.6"></rect><rect x="20" y="28" width="12" height="11" rx="1" fill="#E9EDEF" stroke="#9FB0BA" stroke-width="0.6"></rect><rect x="34" y="28" width="12" height="11" rx="1" fill="#E9EDEF" stroke="#9FB0BA" stroke-width="0.6"></rect><path d="M8 31 H16 M22 31 H30 M36 31 H44" stroke="#5B6870" stroke-width="1.2"></path><rect x="22" y="10" width="12" height="16" rx="2" fill="none" stroke="#2E9A57" stroke-width="2"></rect><rect x="25" y="7" width="6" height="3" rx="1" fill="#2E9A57"></rect><rect x="25" y="17" width="6" height="7" fill="#2E9A57"></rect></svg></sc-if>
+<sc-if value="{{item.isPumped}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><path d="M0 46 L0 22 L10 12 L30 12 L40 26 L56 32 L56 46 Z" fill="#7C8F5A"></path><path d="M9 13 L31 13 L29 17 L11 17 Z" fill="#2F78B5"></path><path d="M30 15 L44 36" stroke="#6E7A82" stroke-width="2.5"></path><rect x="40" y="33" width="10" height="7" fill="#E6E0D5"></rect><path d="M36 44 L56 42 L56 46 L34 46 Z" fill="#2F78B5"></path><path d="M20 4 L20 9 M17 6 L20 9 L23 6" stroke="#2E9A57" stroke-width="1.6" fill="none"></path></svg></sc-if>
+<sc-if value="{{item.isSolar}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="56" height="44" viewBox="0 0 56 46"><circle cx="45" cy="10" r="6" fill="#F2B33D"></circle><path d="M0 46 L0 38 L56 36 L56 46 Z" fill="#9CC266"></path><path d="M6 30 L22 30 L26 22 L10 22 Z" fill="#24466E"></path><path d="M28 30 L44 30 L48 22 L32 22 Z" fill="#24466E"></path><path d="M10 41 L26 41 L30 33 L14 33 Z" fill="#2B5585"></path><path d="M30 41 L46 41 L50 33 L34 33 Z" fill="#2B5585"></path><path d="M14 22 L12 30 M18 22 L16 30 M36 22 L34 30 M40 22 L38 30 M18 33 L16 41 M22 33 L20 41 M38 33 L36 41 M42 33 L40 41" stroke="#7FA3CC" stroke-width="0.6"></path></svg></sc-if>
+</span>
+<span class="nv-cardtxt">
+<span style="font-size: 12px; font-weight: 800; line-height: 1.15">{{item.name}}</span>
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 13.5px">{{item.priceText}}</span>
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68">{{item.mwText}} · {{item.buildText}}</span>
+<span style="font-size: 10.5px; font-weight: 700; color: #2B6CA3">{{item.rule}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{moving}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 8px; right: 8px; top: 8px; bottom: 8px; border-radius: 18px; border: 2px dashed #C0392B; background: rgba(251,228,220,0.95); display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-size: 14px; font-weight: 800; color: #8E2A17; pointer-events: none">{{dropText}}</div>
+</sc-if>
+</section>
+
+<sc-if value="{{showModal}}" hint-placeholder-val="{{ false }}">
+<div class="nv-modal" role="dialog" aria-modal="true" aria-label="{{modalTitle}}">
+<div class="nv-modalcard">
+<sc-if value="{{isIntro}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 6px" aria-hidden="true"><sc-for list="{{introDots}}" as="dot" hint-placeholder-count="6"><span style="height: 6px; border-radius: 3px; width: {{dot.w}}; background: {{dot.c}}"></span></sc-for></div></sc-if>
+<span style="font-size: 12px; font-weight: 800; color: #1A7A43; letter-spacing: 0.05em; text-transform: uppercase">{{modalKicker}}</span>
+<h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.15">{{modalTitle}}</h2>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; font-weight: 600; color: #33444D; white-space: pre-line">{{modalText}}</p>
+<sc-for list="{{bullets}}" as="b" hint-placeholder-count="0">
+<div style="display: flex; gap: 10px; align-items: flex-start; background: #F3F6F7; border-radius: 12px; padding: 9px 11px">
+<span style="flex: none; width: 10px; height: 10px; border-radius: 5px; margin-top: 5px; background: {{b.c}}"></span>
+<div style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13.5px; font-weight: 800">{{b.t}}</span><span style="font-size: 12.5px; font-weight: 600; color: #4F5F68; line-height: 1.4">{{b.d}}</span></div>
+</div>
+</sc-for>
+<sc-if value="{{hasGrade}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 14px; background: #F3F6F7; border-radius: 16px; padding: 12px">
+<span style="width: 58px; height: 58px; border-radius: 16px; background: {{gradeBg}}; color: #FFFFFF; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 32px; display: flex; align-items: center; justify-content: center">{{grade}}</span>
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 800">Celkové skóre {{totalScore}} / 100</span><span style="font-size: 12px; font-weight: 700; color: #4F5F68">{{gradeText}}</span></div>
+</div>
+</sc-if>
+<sc-for list="{{scores}}" as="sc" hint-placeholder-count="0">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 800"><span>{{sc.label}}</span><span>{{sc.score}} / 100</span></div>
+<div style="height: 8px; border-radius: 4px; background: #E3E9EC; overflow: hidden"><div style="height: 8px; width: {{sc.w}}; background: {{sc.c}}"></div></div>
+<span style="font-size: 11.5px; font-weight: 600; color: #4F5F68">{{sc.note}}</span>
+</div>
+</sc-for>
+<sc-if value="{{hasReport}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px">Misie roka</span>
+<sc-for list="{{repMissions}}" as="ms" hint-placeholder-count="2">
+<div style="display: flex; align-items: flex-start; gap: 8px; background: #F3F6F7; border-radius: 12px; padding: 8px 10px"><span style="color: {{ms.color}}; font-weight: 800; font-size: 15px">{{ms.icon}}</span><div style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13px; font-weight: 800">{{ms.text}}</span><span style="font-size: 12px; font-weight: 600; color: #4F5F68">{{ms.prog}}</span></div><span style="font-size: 12.5px; font-weight: 800; color: {{ms.color}}; white-space: nowrap">{{ms.money}}</span></div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px">Priemerný deň v tomto roku</span>
+<span style="font-size: 12px; font-weight: 600; color: #4F5F68; line-height: 1.4">Stĺpce = odkiaľ bola elektrina (MW), čierna čiara = spotreba, hore priemerná cena. Večer slnko nevyrába a cena je najvyššia.</span>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-items: end">
+<sc-for list="{{dayChart}}" as="sl" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 11px; font-weight: 800; color: #33444D; text-align: center; white-space: nowrap">{{sl.top}}</span>
+<div style="position: relative; height: 90px; display: flex; flex-direction: column-reverse; border-radius: 4px; overflow: hidden; background: #EEF2F4">
+<sc-for list="{{sl.segs}}" as="sg" hint-placeholder-count="2"><div style="flex: none; height: {{sg.h}}; background: {{sg.c}}"></div></sc-for>
+<div style="position: absolute; left: 0; right: 0; bottom: {{sl.demB}}; height: 2px; background: #1E2B33"></div>
+</div>
+<span style="font-size: 11px; font-weight: 700; color: #4F5F68; text-align: center">{{sl.label}} h</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px">Rok po mesiacoch</span>
+<span style="font-size: 12px; font-weight: 600; color: #4F5F68; line-height: 1.4">Priemerný výkon zdrojov v každom mesiaci, čiara = spotreba, hore CO₂ v g/kWh.</span>
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; align-items: end">
+<sc-for list="{{monChart}}" as="sl" hint-placeholder-count="12">
+<div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+<span style="font-size: 10.5px; font-weight: 700; color: #33444D; text-align: center">{{sl.top}}</span>
+<div style="position: relative; height: 90px; display: flex; flex-direction: column-reverse; border-radius: 3px; overflow: hidden; background: #EEF2F4">
+<sc-for list="{{sl.segs}}" as="sg" hint-placeholder-count="2"><div style="flex: none; height: {{sg.h}}; background: {{sg.c}}"></div></sc-for>
+<div style="position: absolute; left: 0; right: 0; bottom: {{sl.demB}}; height: 2px; background: #1E2B33"></div>
+</div>
+<span style="font-size: 10.5px; font-weight: 700; color: #4F5F68; text-align: center">{{sl.label}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 3px 10px; flex-wrap: wrap; font-size: 11px; font-weight: 700; color: #3A4A52">
+<sc-for list="{{chartLegend}}" as="lg" hint-placeholder-count="8"><span style="display: inline-flex; align-items: center; gap: 4px"><span style="width: 9px; height: 9px; border-radius: 2px; background: {{lg.c}}"></span>{{lg.label}}</span></sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px">Otázky na zamyslenie</span>
+<sc-for list="{{quiz}}" as="qz" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 6px; background: #F3F6F7; border-radius: 14px; padding: 10px 12px">
+<span style="font-size: 13.5px; font-weight: 800">{{qz.q}}</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{qz.opts}}" as="o" hint-placeholder-count="3"><button onClick="{{o.pick}}" style="min-height: 40px; padding: 6px 12px; border-radius: 12px; border: 2px solid {{o.bd}}; background: {{o.bg}}; color: #1E2B33; font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; cursor: pointer; text-align: left">{{o.label}}</button></sc-for>
+</div>
+<sc-if value="{{qz.answered}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; font-weight: 700; line-height: 1.4; color: {{qz.explColor}}">{{qz.expl}}</span></sc-if>
+</div>
+</sc-for>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; font-weight: 800">{{openQ}}
+<textarea rows="3" placeholder="Napíš svoju odpoveď (pre seba alebo do triedy)…" style="font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600; border: 2px solid #DCE5E9; border-radius: 12px; padding: 8px 10px; resize: vertical; color: #1E2B33"></textarea>
+</label>
+</div>
+</sc-if>
+<sc-if value="{{hasRows}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="0"><div style="background: #F3F6F7; border-radius: 10px; padding: 7px 9px; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 11px; font-weight: 700; color: #4F5F68">{{r.k}}</span><span style="font-size: 13.5px; font-weight: 800">{{r.v}}</span></div></sc-for>
+</div>
+</sc-if>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-if value="{{showBack}}" hint-placeholder-val="{{ false }}"><button onClick="{{introBack}}" style="height: 50px; padding: 0 16px; border-radius: 16px; border: 2px solid #D5DFE3; background: #FFFFFF; color: #1E2B33; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer">Späť</button></sc-if>
+<sc-if value="{{showSkip}}" hint-placeholder-val="{{ false }}"><button onClick="{{introSkip}}" style="height: 50px; padding: 0 16px; border-radius: 16px; border: 2px solid #D5DFE3; background: #FFFFFF; color: #4F5F68; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer">Preskočiť úvod</button></sc-if>
+<button onClick="{{modalAction}}" style="flex: 1; min-width: 160px; height: 50px; border-radius: 16px; border: none; background: #1A7A43; color: #FFFFFF; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px; cursor: pointer; box-shadow: 0 4px 0 #0F5A2F">{{modalBtn}}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #A9CBE3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 30">
+<span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 34px; color: #1E2B33">Nivis</span>
+<span style="font-size: 14px; font-weight: 700; color: #33444D">{{loadText}}</span>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"h":{"editor":null,"default":"100vh"},"layout":{"editor":"enum","options":["auto","portrait"],"default":"auto"},"yearSeconds":{"editor":"int","min":60,"max":600,"default":270,"section":"Simulácia"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { loading: true, loadText: 'Načítavam mapu Slovenska…', running: false, speed: 1, tip: null, toast: null, moving: false, legendOpen: false, sel: null, modal: 'intro', introStep: 0, quizPicks: {}, report: null, hud: null, tick: 0 };
+    this.DATA_URL = '/_blob/7223bb607c4f7e01c2f664f2b67e0a5c';
+    this._setCanvas = (el) => { if (el && el !== this.canvas) { this.canvas = el; this.initScene(); } };
+    this._setDock = (el) => { this.dockEl = el; };
+    this._setRoot = (el) => { if (el) this.rootEl = el; };
+    this._onMove = (e) => this.onPointerMove(e);
+    this._onUp = (e) => this.onPointerUp(e);
+    this._zoomIn = () => this.zoomBy(0.7);
+    this._zoomOut = () => this.zoomBy(1.4);
+    this._viewAll = () => this.setView(0, -5, 330, 0.75);
+    this._toggleLegend = () => this.setState((s) => ({ legendOpen: !s.legendOpen }));
+    this._togglePlay = () => { if (!this.sim || this.state.modal) return; this.setState((s) => ({ running: !s.running })); };
+    this._closeInfo = () => { this.selPlant = null; this.setState({ sel: null }); };
+    this._modalAction = () => this.onModalAction();
+    this._introBack = () => this.setState((s) => ({ introStep: Math.max(0, s.introStep - 1) }));
+    this._introSkip = () => this.setState({ modal: null, running: true, introStep: 0 });
+    const G = '#1A7A43', B = '#2B6CA3', O = '#D9A21B', R = '#C0392B', P = '#7B55B8', Y = '#F2C230', S = '#8FD6F2', K = '#3C4248';
+    this.introSteps = [
+      { kicker: 'Vitaj v Nivis', title: 'Staň sa správcom energetiky Slovenska',
+        text: 'Na 4 roky (2027 – 2030) rozhoduješ, odkiaľ bude mať Slovensko elektrinu. Cieľom je, aby krajina prosperovala: mala dosť elektriny, zarábala a bola čo najčistejšia.',
+        bullets: [
+          { t: 'Dosť elektriny', d: 'Pokry spotrebu všetkých obyvateľov bez výpadkov a bez drahého dovozu.', c: B },
+          { t: 'Čistá krajina', d: 'Čím menej CO₂ vypúšťaš, tým viac ľudí sa prisťahuje a dostaneš bonus k tržbám.', c: G },
+          { t: 'Zdravé financie', d: 'Stavby sú drahé – investuj múdro a príliš sa nezadlž.', c: O }
+        ] },
+      { kicker: 'Tvoj štart', title: 'Začínaš s jedinou elektrárňou',
+        text: 'Máš len jadrovú elektráreň Jaslovské Bohunice V2 (2 bloky po 505 MW). Pokryje asi tretinu spotreby Slovenska. Zvyšok musíš dovážať zo zahraničia – je to o 15 % drahšie a dovezená elektrina je špinavšia (400 g CO₂/kWh).',
+        bullets: [
+          { t: 'Spotreba Slovenska ≈ 2 900 MW', d: 'V zime viac, v lete menej. Rastie s počtom obyvateľov a s elektrifikáciou.', c: B },
+          { t: 'Bohunice ≈ 950 MW', d: 'Jadro vyrába stabilne, no raz ročne má každý blok odstávku na výmenu paliva.', c: P },
+          { t: 'Rozdiel = dovoz', d: 'Na začiatku máš 3 mld. € a môžeš si požičať až 12 mld. € (úrok 4,5 % ročne).', c: R }
+        ] },
+      { kicker: 'Ako funguje výroba', title: 'Žiadna elektráreň nevyrába stále rovnako',
+        text: 'Hra simuluje každý deň počasie a stav elektrární. Deň má 6 blokov po 4 hodiny – v grafe hore vidíš, že v noci slnko nevyrába a večer je špička spotreby aj ceny.',
+        bullets: [
+          { t: 'Slnko ≈ 11 % roka', d: 'Svieti len cez deň, v lete oveľa viac ako v zime, mraky výrobu znižujú. Na juhu je slnka najviac.', c: Y },
+          { t: 'Vietor ≈ 24 % roka', d: 'Niekedy nefúka vôbec, pri víchrici sa turbíny zastavia. Na kopcoch fúka viac.', c: S },
+          { t: 'Voda ≈ 35 % roka', d: 'Najviac na jar, keď sa topí sneh. V suchu menej. Stavať sa dá len na rieke.', c: B },
+          { t: 'Jadro ≈ 90 % roka', d: 'Stabilné, no má odstávky a poruchy. Stojí 10 mld. € a stavia sa 2 roky. Potrebuje rieku na chladenie.', c: P },
+          { t: 'Uhlie', d: 'Vyrába, kedy chceš, ale vypúšťa veľa CO₂ a platíš za palivo aj emisné povolenky.', c: K },
+          { t: 'Batérie a prečerpávacie VE', d: 'Nevyrábajú, ale presúvajú energiu: nabijú sa, keď je lacná, a vybijú večer v špičke. Časť energie sa pri tom stratí.', c: G }
+        ] },
+      { kicker: 'Peniaze', title: 'Elektrinu predávaš na burze',
+        text: 'Za každú vyrobenú megawatthodinu dostaneš aktuálnu burzovú cenu. Tá sa mení každý deň podľa počasia, ceny plynu, emisných povoleniek a udalostí vo svete (priemer ~100 €/MWh).',
+        bullets: [
+          { t: 'Bonus za čistú energiu', d: 'Pri vysokom podiele čistej energie dostaneš k tržbám bonus až ×1,2. Pri špinavej energii naopak prídeš o 5 %.', c: G },
+          { t: 'Výdavky', d: 'Dovoz, palivo, emisné povolenky, údržba elektrární, dane a úroky z úveru.', c: R },
+          { t: 'Prebytok sa vyváža', d: 'Keď vyrobíš viac, ako krajina spotrebuje, predáš to do zahraničia.', c: B }
+        ] },
+      { kicker: 'Ľudia a CO₂', title: 'Ľudia idú tam, kde je čistý vzduch',
+        text: 'Každý deň sa niekto prisťahuje a niekto odíde. Rozhoduje hlavne to, koľko CO₂ krajina vypúšťa.',
+        bullets: [
+          { t: 'Pod 200 g CO₂/kWh ľudia prichádzajú', d: 'Nad touto hranicou odchádzajú. Odháňajú ich aj výpadky prúdu a veľmi drahá elektrina.', c: G },
+          { t: 'Viac ľudí = vyššia spotreba', d: 'Rastúca krajina potrebuje viac elektriny – musíš stavať priebežne.', c: B },
+          { t: 'Udalosti', d: 'Sucho, povodne, horúčavy, mrazy, víchrice či plynová kríza ti môžu skomplikovať rok.', c: O }
+        ] },
+      { kicker: 'Ovládanie', title: 'Ako hrať',
+        text: 'Každý rok trvá asi 4,5 minúty. Na konci roka dostaneš známku A – E za ekonomiku, ekológiu, spoľahlivosť a spokojnosť ľudí.',
+        bullets: [
+          { t: 'Mapa', d: 'Ťahaním ju posúvaš, pravým tlačidlom otáčaš, kolieskom približuješ. Na mobile prstami.', c: B },
+          { t: 'Stavanie', d: 'Potiahni elektráreň z panela na mapu. Zelená = dá sa stavať, červená ti povie prečo nie.', c: G },
+          { t: 'Detail a búranie', d: 'Klikni na elektráreň a uvidíš jej výkon a stav. Potiahni ju späť na panel a zbúraš ju.', c: O },
+          { t: 'Misie', d: 'Každý rok máš 2 misie podľa skutočných cieľov Slovenska. Za splnenie dostaneš odmenu, za nesplnenie cieľa 2030 pokutu.', c: G },
+          { t: 'Čas', d: 'Hore môžeš hru pozastaviť alebo zrýchliť na 2× či 4×.', c: K }
+        ] }
+    ];
+    this.speedDefs = [1, 2, 4].map((v) => ({ v, set: () => this.setState({ speed: v }) }));
+    // Real-world parameters (sources in the design notes): unit size, capital cost (EUR), build time (game days),
+    // fixed O&M (EUR per MW and year), variable cost (EUR/MWh, without CO2), lifecycle CO2 (g/kWh, IPCC medians)
+    this.items = [
+      { type: 'solar', name: 'Solárny park', mw: 50, price: 33e6, build: 120, om: 15000, varc: 0, co2: 48, cf: '≈11 %', tint: '#FFF4D6', rule: 'Viac slnka na juhu', refund: 0.2 },
+      { type: 'wind', name: 'Veterný park', mw: 30, price: 42e6, build: 240, om: 40000, varc: 0, co2: 11, cf: '≈24 %', tint: '#DDF0F8', rule: 'Najlepšie na kopci', refund: 0.2 },
+      { type: 'hydro', name: 'Vodná elektráreň', mw: 60, price: 180e6, build: 330, om: 30000, varc: 0, co2: 24, cf: '≈35 %', tint: '#D6EAF4', rule: 'Len na rieke', refund: 0.2 },
+      { type: 'battery', name: 'Batériové úložisko', mw: 100, hours: 2, eta: 0.88, price: 60e6, build: 120, om: 20000, varc: 0, co2: 0, cf: 'nabíja/vybíja', tint: '#E4F2EA', rule: 'Presúva energiu na večer', refund: 0.2 },
+      { type: 'pumped', name: 'Prečerpávacia VE', mw: 300, hours: 8, eta: 0.76, price: 600e6, build: 540, om: 25000, varc: 0, co2: 0, cf: 'nabíja/vybíja', tint: '#DCEBF3', rule: 'V horách pri rieke', refund: 0.2 },
+      { type: 'nuclear', name: 'Jadrová elektráreň', mw: 1200, price: 10e9, build: 730, om: 130000, varc: 10, co2: 12, cf: '≈90 %', tint: '#ECE9F4', rule: 'Pri rieke (chladenie)', refund: 0 },
+      { type: 'coal', name: 'Uhoľná elektráreň', mw: 400, price: 800e6, build: 540, om: 50000, varc: 30, co2: 820, cf: 'podľa ceny', tint: '#ECE8E2', rule: 'Mimo vody a miest', refund: 0.2 }
+    ];
+    this.items.forEach((it) => { it.start = (e) => this.startNew(it.type, e); });
+    this.itemBy = {}; this.items.forEach((it) => { this.itemBy[it.type] = it; });
+    this.CO2 = { nuclear: 12, hydro: 24, wind: 11, solar: 48, coal: 820, gas: 490, imp: 400 };
+    this.COLORS = { nuclear: '#7B55B8', hydro: '#2B7BB9', solar: '#F2C230', wind: '#8FD6F2', coal: '#3C4248', gas: '#E07B39', store: '#2E9A57', imp: '#AEB8BF' };
+    this.LABELS = { nuclear: 'Jadro', hydro: 'Voda', solar: 'Slnko', wind: 'Vietor', coal: 'Uhlie', gas: 'Plyn', store: 'Úložisko', imp: 'Import' };
+    this.MONTH_PRICE = [140.21, 153.41, 104.53, 84.37, 77.15, 79.14, 98.51, 80.08, 94.25, 97.76, 120.08, 110.74];
+    this.CREDIT = 12e9; // state credit line: the player may go into debt down to -12 bn EUR (4.5 % interest per year)
+    this.DEM_SHAPE = [0.80, 0.92, 1.05, 1.02, 1.16, 1.05]; // share of daily demand per 4-hour block (evening peak)
+    this.PRICE_SHAPE = [0.82, 0.95, 1.02, 0.95, 1.22, 1.04];
+    this.SLOT_LABELS = ['0–4', '4–8', '8–12', '12–16', '16–20', '20–24'];
+    this.MONTH_SHORT = ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'];
+    this.MONTHS = ['januára', 'februára', 'marca', 'apríla', 'mája', 'júna', 'júla', 'augusta', 'septembra', 'októbra', 'novembra', 'decembra'];
+    this.MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  }
+
+  componentDidMount() {
+    this.alive = true;
+    window.addEventListener('pointermove', this._onMove);
+    window.addEventListener('pointerup', this._onUp);
+    window.addEventListener('pointercancel', this._onUp);
+    this.initScene();
+  }
+
+  componentWillUnmount() {
+    this.alive = false;
+    window.removeEventListener('pointermove', this._onMove);
+    window.removeEventListener('pointerup', this._onUp);
+    window.removeEventListener('pointercancel', this._onUp);
+    clearTimeout(this._initTimer);
+    clearTimeout(this._toastTimer);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.three) { this.three.renderer.dispose(); this.three = null; }
+  }
+
+  // ---------- static data (relief model, cities, labels) ----------
+  geo() {
+    return {
+      ranges: [
+        [20.15,49.17,2.65,14,6,0],[19.75,49.2,2.1,13,5,0],[20.3,49.23,1.9,6,3,0],[19.55,48.94,2.0,38,9,0],
+        [19.05,49.2,1.7,14,5,-30],[19.1,48.98,1.55,18,8,80],[20.3,48.77,1.3,50,18,-10],[19.48,48.63,1.4,9,9,0],
+        [18.9,48.72,1.2,16,7,80],[18.85,48.45,1.0,15,12,0],[18.62,48.62,1.2,14,7,80],[18.3,48.5,0.8,15,6,-70],
+        [18.4,48.92,1.1,15,14,0],[17.75,48.92,0.9,25,6,-40],[17.25,48.4,0.75,32,5,-45],[18.45,49.3,1.0,18,9,-20],
+        [19.4,49.5,1.6,10,5,0],[19.3,49.17,1.5,7,4,0],[20.7,49.1,1.25,12,8,0],[21.05,49.25,1.05,12,6,0],
+        [21.45,48.8,1.0,20,5,90],[22.15,48.9,1.05,14,6,0],[22.4,49.05,1.15,10,5,0],[21.7,49.25,0.75,40,10,0],
+        [21.0,49.0,1.1,8,5,90],[20.8,48.82,1.2,14,8,0],[19.9,48.2,0.6,8,4,0],[21.6,49.12,0.7,15,10,0],
+        [18.2,49.22,0.9,10,7,0],[20.5,48.6,0.8,14,6,0],[20.0,49.3,1.2,20,6,0]
+      ],
+      lowlands: [[17.9,48.0,48],[17.1,48.55,18],[21.95,48.55,34],[21.2,48.6,10],[19.0,47.6,40],[21.0,47.7,60]],
+      cities: [
+        ['Bratislava',17.11,48.15,1.0],['Košice',21.26,48.72,0.8],['Prešov',21.24,49.0,0.5],['Žilina',18.74,49.22,0.5],
+        ['Banská Bystrica',19.15,48.74,0.45],['Nitra',18.09,48.31,0.45],['Trnava',17.59,48.38,0.4],['Trenčín',18.04,48.89,0.35],
+        ['Martin',18.92,49.07,0.35],['Poprad',20.3,49.06,0.35],['Prievidza',18.62,48.77,0.3],['Zvolen',19.13,48.58,0.3],
+        ['Michalovce',21.92,48.75,0.3],['Spišská Nová Ves',20.56,48.94,0.25],['Komárno',18.13,47.76,0.25],['Lučenec',19.67,48.33,0.25],
+        ['Liptovský Mikuláš',19.61,49.08,0.25],['Ružomberok',19.3,49.08,0.2],['Levice',18.6,48.21,0.25],['Rožňava',20.53,48.66,0.2],
+        ['Humenné',21.91,48.93,0.25],['Bardejov',21.28,49.29,0.2],['Piešťany',17.83,48.59,0.2],['Topoľčany',18.17,48.56,0.2],
+        ['Dunajská Streda',17.62,47.99,0.2],['Rimavská Sobota',20.02,48.38,0.2],['Púchov',18.33,49.12,0.15],['Levoča',20.59,49.02,0.15],
+        ['Malacky',17.02,48.44,0.15],['Žiar nad Hronom',18.86,48.59,0.15]
+      ],
+      peaks: [['Vysoké Tatry',20.15,49.17],['Nízke Tatry',19.55,48.94],['Malá Fatra',19.05,49.2],['Slovenské rudohorie',20.3,48.77]],
+      countries: [['ČESKO',17.25,49.3],['POĽSKO',19.9,49.82],['UKRAJINA',22.78,48.62],['MAĎARSKO',19.6,47.75],['RAKÚSKO',16.62,48.05]],
+      skRivers: ['Dunaj','Váh','Hron','Hornád','Ipeľ','Morava','Nitra','Ondava','Laborec','Poprad','Orava','Topľa','Slaná','Latorica','Bodrog','Dunajec','Kysuca','Rimava','Tisa']
+    };
+  }
+
+  // ---------- noise ----------
+  hash(x, y) {
+    let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  vnoise(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const fx = x - xi, fy = y - yi;
+    const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    const a = this.hash(xi, yi), b = this.hash(xi + 1, yi), c = this.hash(xi, yi + 1), d = this.hash(xi + 1, yi + 1);
+    return (a * (1 - u) + b * u) * (1 - v) + (c * (1 - u) + d * u) * v;
+  }
+  fbm(x, y, o) {
+    let s = 0, a = 0.5, f = 1, n = 0;
+    for (let i = 0; i < o; i++) { s += a * this.vnoise(x * f, y * f); n += a; a *= 0.5; f *= 2.03; }
+    return s / n;
+  }
+  ridged(x, y) {
+    let s = 0, a = 0.5, f = 1, n = 0;
+    for (let i = 0; i < 4; i++) { s += a * (1 - Math.abs(this.vnoise(x * f, y * f) * 2 - 1)); n += a; a *= 0.5; f *= 2.1; }
+    return s / n;
+  }
+  gauss() { let u = 0, v = 0; while (u === 0) u = Math.random(); while (v === 0) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+  // ---------- geography ----------
+  P(lon, lat) { return [(lon - 19.7) * 73.5, -(lat - 48.67) * 111]; }
+  inPoly(b, x, z) {
+    let c = false;
+    for (let i = 0, j = b.length - 1; i < b.length; j = i++) {
+      const xi = b[i][0], zi = b[i][1], xj = b[j][0], zj = b[j][1];
+      if (((zi > z) !== (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi)) c = !c;
+    }
+    return c;
+  }
+  inside(x, z) { return this.inPoly(this.borderXZ, x, z); }
+  segDist(px, pz, ax, az, bx, bz) {
+    const dx = bx - ax, dz = bz - az; const l2 = dx * dx + dz * dz;
+    let t = l2 ? ((px - ax) * dx + (pz - az) * dz) / l2 : 0; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const qx = ax + dx * t, qz = az + dz * t; const ex = px - qx, ez = pz - qz;
+    return { d: Math.sqrt(ex * ex + ez * ez), x: qx, z: qz, tx: dx, tz: dz };
+  }
+  nearestRiver(x, z) {
+    let best = { d: 1e9, n: '' };
+    for (const r of this.riversXZ) {
+      const p = r.p;
+      if (x < r.bb[0] - 8 || x > r.bb[2] + 8 || z < r.bb[1] - 8 || z > r.bb[3] + 8) continue;
+      for (let i = 0; i < p.length - 1; i++) {
+        const s = this.segDist(x, z, p[i][0], p[i][1], p[i + 1][0], p[i + 1][1]);
+        const d = s.d - r.w * 0.5;
+        if (d < best.d) { best = s; best.d = d; best.w = r.w; best.n = r.n; }
+      }
+    }
+    return best;
+  }
+  inLake(x, z, pad) {
+    for (const L of this.lakesXZ) {
+      if (x < L.bb[0] - pad || x > L.bb[2] + pad || z < L.bb[1] - pad || z > L.bb[3] + pad) continue;
+      if (this.inPoly(L.p, x, z)) return L;
+      if (pad > 0) { for (let i = 0; i < L.p.length; i++) { const a = L.p[i], b = L.p[(i + 1) % L.p.length]; if (this.segDist(x, z, a[0], a[1], b[0], b[1]).d < pad) return L; } }
+    }
+    return null;
+  }
+  baseKm(x, z) {
+    const n = this.fbm(x * 0.018 + 3.1, z * 0.018 - 7.7, 4);
+    let hk = 0.16 + 0.36 * n * n;
+    for (const L of this.lowXZ) {
+      const dx = x - L[0], dz = z - L[1]; const f = Math.exp(-(dx * dx + dz * dz) / (L[2] * L[2]));
+      hk = hk * (1 - f) + (0.11 + 0.03 * n) * f;
+    }
+    let m = 0;
+    for (const r of this.rangesXZ) {
+      const dx = x - r.x, dz = z - r.z; const u = dx * r.c + dz * r.s, v = -dx * r.s + dz * r.c;
+      const e = (u * u) / (r.rx * r.rx) + (v * v) / (r.rz * r.rz);
+      if (e < 9) { const val = r.h * Math.exp(-e * 1.3); if (val > m) m = val; }
+    }
+    if (m > 0.01) hk += m * (0.7 + 0.5 * this.ridged(x * 0.11 + 5, z * 0.11 - 3));
+    return hk;
+  }
+  sampleH(x, z) {
+    const g = this.grid;
+    const fx = (x + g.W / 2) / g.dx, fz = (z + g.D / 2) / g.dz;
+    if (fx < 0 || fz < 0 || fx >= g.SX || fz >= g.SZ) return -5;
+    const ix = fx | 0, iz = fz | 0, ax = fx - ix, az = fz - iz, r = g.SX + 1, H = g.H;
+    const h00 = H[iz * r + ix], h10 = H[iz * r + ix + 1], h01 = H[(iz + 1) * r + ix], h11 = H[(iz + 1) * r + ix + 1];
+    return (h00 * (1 - ax) + h10 * ax) * (1 - az) + (h01 * (1 - ax) + h11 * ax) * az;
+  }
+  forestN(x, z) { return this.fbm(x * 0.07 + 11, z * 0.07 + 5, 3); }
+  urban(x, z) {
+    let u = 0;
+    for (const c of this.citiesXZ) { const dx = x - c.x, dz = z - c.z; const R = c.R * 1.1; const v = Math.exp(-(dx * dx + dz * dz) / (R * R)); if (v > u) u = v; }
+    return u;
+  }
+
+  // ---------- scene ----------
+  col(h) { return new window.THREE.Color(h).convertSRGBToLinear(); }
+  mat(h, o) { const T = window.THREE; return new T.MeshStandardMaterial(Object.assign({ color: this.col(h), roughness: 0.85, metalness: 0 }, o || {})); }
+
+  initScene() {
+    const T = window.THREE;
+    if (this.three || this._building) return;
+    if (!T || !T.MapControls || !this.canvas) {
+      this._tries = (this._tries || 0) + 1;
+      if (this._tries < 300) { clearTimeout(this._initTimer); this._initTimer = setTimeout(() => this.initScene(), 60); }
+      return;
+    }
+    this._building = true;
+    const local = window.NIVIS_DATA;
+    const getData = local ? Promise.resolve(local) : fetch(this.DATA_URL).then((r) => r.json());
+    getData.then((data) => {
+      setTimeout(() => { try { this.build(data); } catch (err) { console.error('Nivis build failed', err); this.setState({ loadText: 'Mapu sa nepodarilo vytvoriť.' }); } }, 20);
+    }).catch((err) => { console.error('Nivis data failed', err); this.setState({ loadText: 'Nepodarilo sa načítať mapové podklady.' }); });
+  }
+
+  makeLabel(text, size, italic, color, stroke) {
+    const T = window.THREE;
+    const cv = document.createElement('canvas'); const ctx = cv.getContext('2d');
+    const font = (italic ? 'italic ' : '') + '800 44px Nunito, Arial, sans-serif';
+    ctx.font = font; const tw = Math.ceil(ctx.measureText(text).width) + 28;
+    cv.width = tw; cv.height = 64; ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 9; ctx.strokeStyle = stroke || 'rgba(20,30,38,0.75)'; ctx.lineJoin = 'round'; ctx.strokeText(text, tw / 2, 33);
+    ctx.fillStyle = color; ctx.fillText(text, tw / 2, 33);
+    const tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; tex.anisotropy = 4;
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: tex, sizeAttenuation: false, depthTest: false, transparent: true }));
+    sp.userData.aspect = tw / 64; sp.userData.px = size; sp.renderOrder = 20; return sp;
+  }
+  addLabel(sp, x, z, up, vis) { sp.position.set(x, this.sampleH(x, z) + up, z); sp.userData.vis = vis; this.three.scene.add(sp); this.labels.push(sp); }
+
+  build(data) {
+    const T = window.THREE; const G = this.geo(); const EX = 4.5; this.EX = EX;
+    const canvas = this.canvas;
+    const Wc = canvas.clientWidth || 390, Hc = canvas.clientHeight || 844;
+    const renderer = new T.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(Wc, Hc, false);
+    renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = T.PCFSoftShadowMap;
+    const scene = new T.Scene();
+    scene.background = this.col('#A9CBE3');
+    scene.fog = new T.Fog(this.col('#BCD5E7'), 200, 700);
+    const camera = new T.PerspectiveCamera(45, Wc / Hc, 0.3, 4000);
+    const bbox = (pts) => { let a = 1e9, b = 1e9, c = -1e9, d = -1e9; pts.forEach((p) => { a = Math.min(a, p[0]); b = Math.min(b, p[1]); c = Math.max(c, p[0]); d = Math.max(d, p[1]); }); return [a, b, c, d]; };
+
+    this.borderXZ = data.border.map((p) => this.P(p[0], p[1]));
+    this.riversXZ = [];
+    data.rivers.forEach((r) => r.l.forEach((l) => { const p = l.map((q) => this.P(q[0], q[1])); this.riversXZ.push({ n: r.n, w: r.w, p, bb: bbox(p) }); }));
+    this.lakesXZ = data.lakes.map((l) => { const p = l.p.map((q) => this.P(q[0], q[1])); return { n: l.n, p, bb: bbox(p), lvl: 0 }; });
+    this.rangesXZ = G.ranges.map((r) => { const p = this.P(r[0], r[1]); const a = r[5] * Math.PI / 180; return { x: p[0], z: p[1], h: r[2], rx: r[3], rz: r[4], c: Math.cos(a), s: Math.sin(a) }; });
+    this.lowXZ = G.lowlands.map((l) => { const p = this.P(l[0], l[1]); return [p[0], p[1], l[2]]; });
+    this.citiesXZ = G.cities.map((c) => { const p = this.P(c[1], c[2]); return { name: c[0], x: p[0], z: p[1], s: c[3], R: 0.8 + c[3] * 4.5 }; });
+
+    // terrain grid
+    const W = 480, D = 260, SX = 320, SZ = 174;
+    const geo = new T.PlaneGeometry(W, D, SX, SZ); geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position; const N = pos.count; const R1 = SX + 1;
+    const dx = W / SX, dz = D / SZ;
+    const HK = new Float32Array(N); const H = new Float32Array(N); const water = new Uint8Array(N);
+    this.grid = { W, D, SX, SZ, dx, dz, H };
+    for (let i = 0; i < N; i++) HK[i] = this.baseKm(pos.getX(i), pos.getZ(i));
+    const cellsIn = (b, pad, fn) => {
+      const x0 = Math.max(0, Math.floor((b[0] - pad + W / 2) / dx)), x1 = Math.min(SX, Math.ceil((b[2] + pad + W / 2) / dx));
+      const z0 = Math.max(0, Math.floor((b[1] - pad + D / 2) / dz)), z1 = Math.min(SZ, Math.ceil((b[3] + pad + D / 2) / dz));
+      for (let iz = z0; iz <= z1; iz++) for (let ix = x0; ix <= x1; ix++) fn(iz * R1 + ix, -W / 2 + ix * dx, -D / 2 + iz * dz);
+    };
+    const carve = new Float32Array(N);
+    this.riversXZ.forEach((r) => {
+      const Wv = 2.6 + r.w * 4;
+      for (let k = 0; k < r.p.length - 1; k++) {
+        const a = r.p[k], b = r.p[k + 1];
+        cellsIn([Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1])], Wv * 2.2, (i, x, z) => {
+          const d = this.segDist(x, z, a[0], a[1], b[0], b[1]).d; const v = Math.exp(-(d / Wv) * (d / Wv)); if (v > carve[i]) carve[i] = v;
+          if (d < r.w * 0.5 + 0.6) water[i] = 1;
+        });
+      }
+    });
+    for (let i = 0; i < N; i++) HK[i] -= (HK[i] - 0.09) * carve[i] * 0.65;
+    this.lakesXZ.forEach((L) => {
+      let s = 0, n = 0, mn = 9;
+      cellsIn(L.bb, 0, (i, x, z) => { if (this.inPoly(L.p, x, z)) { s += HK[i]; n++; mn = Math.min(mn, HK[i]); } });
+      const c = bbox(L.p); L.lvl = n ? (s / n) * 0.4 + mn * 0.6 : this.baseKm((c[0] + c[2]) / 2, (c[1] + c[3]) / 2);
+      cellsIn(L.bb, 3, (i, x, z) => {
+        if (this.inPoly(L.p, x, z)) { HK[i] = L.lvl - 0.04; water[i] = 1; return; }
+        let d = 9; for (let k = 0; k < L.p.length; k++) { const a = L.p[k], b = L.p[(k + 1) % L.p.length]; d = Math.min(d, this.segDist(x, z, a[0], a[1], b[0], b[1]).d); }
+        if (d < 3) { const t = d / 3; const f = 1 - t * t * (3 - 2 * t); HK[i] = HK[i] * (1 - f) + (L.lvl + 0.005) * f; }
+      });
+    });
+
+    const colors = new Float32Array(N * 3);
+    const c = new T.Color();
+    const fieldPal = ['#A3B45C', '#C9B868', '#86A44E', '#B3A85E', '#93AE58', '#BFC27A', '#7C9A48'].map((h) => this.col(h));
+    const cForest = this.col('#355E2E'), cForest2 = this.col('#2B5027'), cMeadow = this.col('#7E9C4E'), cAlp = this.col('#9AA078'), cRock = this.col('#8E877B'), cSnow = this.col('#F2F5F8'), cUrban = this.col('#B4AFA4'), cOut = this.col('#C3C8BC'), cBank = this.col('#6F9A57');
+    for (let i = 0; i < N; i++) {
+      const x = pos.getX(i), z = pos.getZ(i); const hk = HK[i];
+      H[i] = hk * EX; pos.setY(i, H[i]);
+      const ins = this.inside(x, z);
+      const fn = this.forestN(x, z); const n2 = this.vnoise(x * 0.4, z * 0.4);
+      const ub = this.urban(x, z);
+      const snowLine = 1.95 + 0.25 * this.vnoise(x * 0.3 + 7, z * 0.3);
+      if (hk > snowLine) c.copy(cSnow);
+      else if (hk > 1.7) c.copy(cRock).lerp(cSnow, Math.max(0, (hk - 1.7) / (snowLine - 1.7)) * 0.35);
+      else if (hk > 1.48) c.copy(cAlp).lerp(cRock, (hk - 1.48) / 0.22);
+      else if ((hk > 0.3 && fn > 0.47) || hk > 0.62) { c.copy(fn > 0.6 ? cForest2 : cForest); c.offsetHSL(0, 0, (n2 - 0.5) * 0.04); }
+      else if (hk < 0.36) { const k = Math.floor(this.hash(Math.floor(x / 2.3), Math.floor(z / 1.7)) * fieldPal.length); c.copy(fieldPal[k]); c.offsetHSL(0, 0, (n2 - 0.5) * 0.05); }
+      else { c.copy(cMeadow); c.offsetHSL(0, 0, (n2 - 0.5) * 0.05); }
+      if (water[i]) c.lerp(cBank, 0.6);
+      if (ub > 0.15) c.lerp(cUrban, Math.min(0.85, (ub - 0.15) * 1.3));
+      if (!ins) c.lerp(cOut, 0.55);
+      colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+    }
+    geo.setAttribute('color', new T.BufferAttribute(colors, 3));
+    geo.computeVertexNormals();
+    const terrain = new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.96, metalness: 0 }));
+    terrain.receiveShadow = true; scene.add(terrain);
+
+    scene.add(new T.HemisphereLight(this.col('#D6E8FF'), this.col('#55633A'), 0.55));
+    const sun = new T.DirectionalLight(this.col('#FFF0DA'), 1.55);
+    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+    const sc = sun.shadow.camera; sc.left = -45; sc.right = 45; sc.top = 45; sc.bottom = -45; sc.near = 1; sc.far = 400;
+    sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.03;
+    scene.add(sun); scene.add(sun.target);
+
+    const lineAlong = (pts, closed, yOff) => {
+      const out = [];
+      const n0 = closed ? pts.length : pts.length - 1;
+      for (let i = 0; i < n0; i++) {
+        const a = pts[i], q = pts[(i + 1) % pts.length]; const len = Math.hypot(q[0] - a[0], q[1] - a[1]); const n = Math.max(1, Math.ceil(len / 0.8));
+        for (let k = 0; k < n; k++) { const t = k / n; const x = a[0] + (q[0] - a[0]) * t, z = a[1] + (q[1] - a[1]) * t; out.push(new T.Vector3(x, this.sampleH(x, z) + yOff, z)); }
+      }
+      if (closed) out.push(out[0].clone()); else { const l = pts[pts.length - 1]; out.push(new T.Vector3(l[0], this.sampleH(l[0], l[1]) + yOff, l[1])); }
+      return new T.BufferGeometry().setFromPoints(out);
+    };
+    data.nb.forEach((l) => { const p = l.map((q) => this.P(q[0], q[1])); scene.add(new T.Line(lineAlong(p, false, 0.3), new T.LineBasicMaterial({ color: this.col('#F4F6F8'), transparent: true, opacity: 0.35 }))); });
+    scene.add(new T.Line(lineAlong(this.borderXZ, true, 0.4), new T.LineBasicMaterial({ color: this.col('#FFFFFF'), transparent: true, opacity: 0.95 })));
+
+    const ribbon = (pts, w, yOff) => {
+      const vs = [], idx = [];
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[Math.max(0, i - 1)], q = pts[Math.min(pts.length - 1, i + 1)];
+        let tx = q.x - a.x, tz = q.z - a.z; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l;
+        const nx = -tz * w / 2, nz = tx * w / 2; const p = pts[i];
+        const y1 = this.sampleH(p.x + nx, p.z + nz), y2 = this.sampleH(p.x - nx, p.z - nz);
+        const y = Math.max(p.y, y1, y2) + yOff;
+        vs.push(p.x + nx, y, p.z + nz, p.x - nx, y, p.z - nz);
+        if (i < pts.length - 1) { const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+      }
+      const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(vs, 3)); g.setIndex(idx); g.computeVertexNormals();
+      return g;
+    };
+    const curvePts = (xz, step) => {
+      const v = xz.map((p) => new T.Vector3(p[0], 0, p[1]));
+      const cur = new T.CatmullRomCurve3(v, false, 'centripetal');
+      const n = Math.max(2, Math.ceil(cur.getLength() / step));
+      const pts = cur.getSpacedPoints(n); pts.forEach((p) => { p.y = this.sampleH(p.x, p.z); });
+      return pts;
+    };
+    const waterMat = new T.MeshStandardMaterial({ color: this.col('#2F78B5'), roughness: 0.12, metalness: 0.1, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
+    const edgeMat = new T.MeshBasicMaterial({ color: this.col('#A9DDF5'), polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    this.riverPts = [];
+    this.riversXZ.forEach((r) => {
+      const pts = curvePts(r.p, 0.5);
+      scene.add(new T.Mesh(ribbon(pts, r.w + 0.38, 0.1), edgeMat));
+      scene.add(new T.Mesh(ribbon(pts, r.w, 0.13), waterMat));
+      this.riverPts.push({ r, pts });
+    });
+    this.lakesXZ.forEach((L) => {
+      const sh = new T.Shape(L.p.map((q) => new T.Vector2(q[0], -q[1])));
+      const g = new T.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
+      const m = new T.Mesh(g, waterMat); m.position.y = L.lvl * EX + 0.06; m.receiveShadow = true; scene.add(m);
+      const lg = lineAlong(L.p, true, 0); const arr = lg.attributes.position.array; for (let k = 1; k < arr.length; k += 3) arr[k] = L.lvl * EX + 0.09;
+      scene.add(new T.Line(lg, new T.LineBasicMaterial({ color: this.col('#A9DDF5') })));
+    });
+
+    const roadMat = new T.MeshStandardMaterial({ color: this.col('#45484C'), roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+    const road2Mat = new T.MeshStandardMaterial({ color: this.col('#7A7E83'), roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+    const lineMat = new T.MeshBasicMaterial({ color: this.col('#E8E2C8'), polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+    this.roads = [];
+    data.roads.forEach((rd) => {
+      const xz = rd.p.map((q) => this.P(q[0], q[1]));
+      const pts = curvePts(xz, 0.5);
+      scene.add(new T.Mesh(ribbon(pts, rd.m ? 0.46 : 0.3, 0.17), rd.m ? roadMat : road2Mat));
+      if (rd.m) scene.add(new T.Mesh(ribbon(pts, 0.035, 0.18), lineMat));
+      let acc = 0; for (let i = 1; i < pts.length; i++) acc += pts[i].distanceTo(pts[i - 1]);
+      if (acc > 4) this.roads.push({ pts, total: acc, step: acc / (pts.length - 1), m: rd.m });
+    });
+    const carCols = ['#F2F2F0', '#D9DCDF', '#2B2E33', '#9AA1A8', '#B5312A', '#24508C', '#6C7A86', '#EEEAE0', '#3F6D4E'].map((h) => this.col(h));
+    const totalLen = this.roads.reduce((s, r) => s + r.total * (r.m ? 2 : 1), 0);
+    const NC = 520; const carGeo = new T.BoxGeometry(0.24, 0.1, 0.11);
+    const cars = new T.InstancedMesh(carGeo, this.mat('#FFFFFF', { roughness: 0.35, metalness: 0.3 }), NC);
+    cars.castShadow = true;
+    this.cars = [];
+    for (let i = 0; i < NC; i++) {
+      let pick = Math.random() * totalLen, ri = 0; while (ri < this.roads.length - 1 && pick > this.roads[ri].total * (this.roads[ri].m ? 2 : 1)) { pick -= this.roads[ri].total * (this.roads[ri].m ? 2 : 1); ri++; }
+      this.cars.push({ r: ri, s: Math.random() * this.roads[ri].total, dir: Math.random() < 0.5 ? 1 : -1, v: 0.9 + Math.random() * 0.8 });
+      cars.setColorAt(i, carCols[(Math.random() * carCols.length) | 0]);
+    }
+    this.carMesh = cars; scene.add(cars);
+
+    const NB = 7000; const bGeo = new T.BoxGeometry(1, 1, 1); bGeo.translate(0, 0.5, 0);
+    const bMesh = new T.InstancedMesh(bGeo, this.mat('#FFFFFF', { roughness: 0.8 }), NB);
+    bMesh.castShadow = true; bMesh.receiveShadow = true;
+    const bCols = ['#EDE8DF', '#E2DCD0', '#D7D1C6', '#F3EFE7', '#C9C3B8', '#B85C3C', '#A9503A', '#C7C9CC', '#9BA3AA', '#DCCFB8'].map((h) => this.col(h));
+    const dmy = new T.Object3D(); let bi = 0;
+    this.citiesXZ.forEach((ct) => {
+      const n = Math.round(40 + ct.s * 520);
+      for (let k = 0; k < n && bi < NB; k++) {
+        const r = ct.R * Math.sqrt(-Math.log(1 - Math.random() * 0.97)) * 0.65; const a = Math.random() * Math.PI * 2;
+        const x = ct.x + Math.cos(a) * r, z = ct.z + Math.sin(a) * r;
+        if (this.nearestRiver(x, z).d < 0.4 || this.inLake(x, z, 0.3)) continue;
+        const core = Math.exp(-(r / ct.R) * (r / ct.R) * 4);
+        const w = 0.12 + Math.random() * 0.16 + core * 0.1;
+        const hgt = (0.1 + Math.random() * 0.22) * (1 + core * ct.s * 7 * Math.random());
+        dmy.position.set(x, this.sampleH(x, z) - 0.05, z); dmy.rotation.set(0, (Math.round(Math.random() * 4) * Math.PI / 2) + 0.25 * (Math.random() - 0.5), 0);
+        dmy.scale.set(w, hgt, w * (0.7 + Math.random() * 0.8)); dmy.updateMatrix();
+        bMesh.setMatrixAt(bi, dmy.matrix);
+        bMesh.setColorAt(bi, hgt > 0.6 ? bCols[7 + ((Math.random() * 2) | 0)] : bCols[(Math.random() * 7) | 0]); bi++;
+      }
+    });
+    bMesh.count = bi; scene.add(bMesh);
+
+    const NT = 17000, ND = 7000;
+    const cone = new T.ConeGeometry(0.26, 0.9, 6); cone.translate(0, 0.45, 0);
+    const blob = new T.IcosahedronGeometry(0.3, 0); blob.translate(0, 0.42, 0);
+    const conif = new T.InstancedMesh(cone, this.mat('#FFFFFF', { roughness: 0.95 }), NT);
+    const decid = new T.InstancedMesh(blob, this.mat('#FFFFFF', { roughness: 0.95, flatShading: true }), ND);
+    conif.castShadow = true; decid.castShadow = true;
+    const tc1 = ['#2F5A2C', '#284F27', '#36632F', '#2A5530'].map((h) => this.col(h));
+    const tc2 = ['#4E7A34', '#5C8638', '#6B8E3A', '#4A6F30', '#7C8F3A'].map((h) => this.col(h));
+    let ci = 0, di = 0, tries = 0;
+    const bb = bbox(this.borderXZ);
+    while ((ci < NT || di < ND) && tries < 260000) {
+      tries++;
+      const x = bb[0] + Math.random() * (bb[2] - bb[0]), z = bb[1] + Math.random() * (bb[3] - bb[1]);
+      const fx = (x + W / 2) / dx, fz = (z + D / 2) / dz; const gi = Math.round(fz) * R1 + Math.round(fx);
+      if (water[gi]) continue;
+      const y = this.sampleH(x, z); const hk = y / EX;
+      if (hk > 1.5 || hk < 0.24) continue;
+      const fn = this.forestN(x, z);
+      if (!((hk > 0.3 && fn > 0.47) || hk > 0.62)) continue;
+      if (!this.inside(x, z)) continue;
+      if (this.urban(x, z) > 0.12) continue;
+      const s = 0.75 + Math.random() * 0.6;
+      dmy.position.set(x, y - 0.03, z); dmy.rotation.set(0, Math.random() * 6.28, 0); dmy.scale.set(s, s * (0.85 + Math.random() * 0.4), s); dmy.updateMatrix();
+      if (hk < 0.75 && Math.random() < 0.45 && di < ND) { decid.setMatrixAt(di, dmy.matrix); decid.setColorAt(di, tc2[(Math.random() * tc2.length) | 0]); di++; }
+      else if (ci < NT) { conif.setMatrixAt(ci, dmy.matrix); conif.setColorAt(ci, tc1[(Math.random() * tc1.length) | 0]); ci++; }
+    }
+    conif.count = ci; decid.count = di; scene.add(conif); scene.add(decid);
+
+    const controls = new T.MapControls(camera, canvas);
+    this.three = { T, renderer, scene, camera, controls, sun, terrain, clock: new T.Clock(), ray: new T.Raycaster() };
+    this.labels = [];
+    this.citiesXZ.forEach((ct) => this.addLabel(this.makeLabel(ct.name, ct.s >= 0.45 ? 17 : 13, false, '#FFFFFF'), ct.x, ct.z, 2.2 + ct.s * 3, 120 + ct.s * 520));
+    G.peaks.forEach((pk) => { const p = this.P(pk[1], pk[2]); this.addLabel(this.makeLabel(pk[0], 13, true, '#E8F3FF'), p[0], p[1], 4, 380); });
+    G.countries.forEach((cn) => { const p = this.P(cn[1], cn[2]); this.addLabel(this.makeLabel(cn[0], 14, false, 'rgba(255,255,255,0.85)', 'rgba(60,70,80,0.45)'), p[0], p[1], 3, 900); });
+    const byName = {};
+    this.riverPts.forEach((rp) => { if (G.skRivers.indexOf(rp.r.n) < 0) return; const cur = byName[rp.r.n]; if (!cur || rp.pts.length > cur.pts.length) byName[rp.r.n] = rp; });
+    Object.keys(byName).forEach((nm) => {
+      const pts = byName[nm].pts; const insidePts = pts.filter((p) => this.inside(p.x, p.z)); const arr = insidePts.length > 4 ? insidePts : pts;
+      const p = arr[Math.floor(arr.length / 2)];
+      const big = ['Dunaj', 'Váh', 'Hron', 'Hornád', 'Tisa', 'Morava', 'Ipeľ', 'Nitra'].indexOf(nm) >= 0;
+      this.addLabel(this.makeLabel(nm, big ? 14 : 12, true, '#D9F2FF', 'rgba(14,62,104,0.9)'), p.x, p.z, 1.2, big ? 330 : 190);
+    });
+    this.lakesXZ.forEach((L) => { if (!L.n) return; const b2 = L.bb; this.addLabel(this.makeLabel(L.n, 12, true, '#D9F2FF', 'rgba(14,62,104,0.9)'), (b2[0] + b2[2]) / 2, (b2[1] + b2[3]) / 2, 1.0, 200); });
+
+    const sc2 = document.createElement('canvas'); sc2.width = sc2.height = 64; const sx = sc2.getContext('2d');
+    const gr = sx.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, 'rgba(255,255,255,0.95)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    sx.fillStyle = gr; sx.fillRect(0, 0, 64, 64); this.smokeTex = new T.CanvasTexture(sc2);
+
+    canvas.addEventListener('pointerdown', (e) => this.onCanvasDown(e));
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    controls.enableDamping = true; controls.dampingFactor = 0.09; controls.screenSpacePanning = false;
+    controls.minDistance = 3; controls.maxDistance = 520; controls.maxPolarAngle = 1.32; controls.zoomSpeed = 1.1;
+
+    this.plants = []; this.ghosts = {};
+    this.ghostMat = new T.MeshStandardMaterial({ color: this.col('#3BD16F'), emissive: this.col('#1A7A43'), emissiveIntensity: 0.5, transparent: true, opacity: 0.6, depthWrite: false });
+    this.consMat = new T.MeshStandardMaterial({ color: this.col('#E8D9B5'), transparent: true, opacity: 0.55, roughness: 0.9, depthWrite: false });
+    this.setView(-135, 22, 140, 0.9);
+
+    this.hidden = [];
+    this.newGame();
+
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(() => { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h || !this.three) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); });
+      this.ro.observe(canvas);
+    }
+    const loop = () => { if (!this.alive || !this.three) return; this.raf = requestAnimationFrame(loop); this.frame(); };
+    this.alive = true; loop();
+    this.setState({ loading: false });
+  }
+
+  setView(x, z, dist, polar) {
+    if (!this.three) return; const { camera, controls } = this.three;
+    const y = Math.max(0, this.sampleH(x, z));
+    controls.target.set(x, y, z);
+    camera.position.set(x + dist * Math.sin(polar) * 0.25, y + dist * Math.cos(polar), z + dist * Math.sin(polar) * 0.97);
+    controls.update();
+  }
+  zoomBy(f) {
+    if (!this.three) return; const { camera, controls } = this.three;
+    const off = camera.position.clone().sub(controls.target); const d = Math.min(520, Math.max(3, off.length() * f));
+    off.setLength(d); camera.position.copy(controls.target).add(off); controls.update();
+  }
+
+  // ---------- models ----------
+  taper(g, k) { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); const f = 1 - k * Math.max(0, y) / 1.45; p.setZ(i, p.getZ(i) * f); p.setX(i, p.getX(i) * (0.6 + 0.4 * f)); } g.computeVertexNormals(); return g; }
+  turbine() {
+    const T = window.THREE; const g = new T.Group();
+    const white = this.mat('#F3F4F2', { roughness: 0.45 }), grey = this.mat('#D7DCDD', { roughness: 0.5 });
+    g.add(new T.Mesh(new T.CylinderGeometry(0.24, 0.3, 0.12, 14), this.mat('#B9B6AE')));
+    const tower = new T.Mesh(new T.CylinderGeometry(0.055, 0.115, 3.2, 18), white); tower.position.y = 1.65; g.add(tower);
+    const nac = new T.Mesh(new T.BoxGeometry(0.46, 0.17, 0.17), white); nac.position.set(0.07, 3.33, 0); g.add(nac);
+    const nac2 = new T.Mesh(new T.BoxGeometry(0.14, 0.06, 0.1), grey); nac2.position.set(0.22, 3.44, 0); g.add(nac2);
+    const rotor = new T.Group(); rotor.position.set(-0.19, 3.33, 0); g.add(rotor);
+    const hub = new T.Mesh(new T.SphereGeometry(0.075, 16, 12), grey); hub.scale.set(1.4, 1, 1); rotor.add(hub);
+    for (let i = 0; i < 3; i++) {
+      const bg = this.taper(new T.BoxGeometry(0.022, 1.45, 0.1).translate(0, 0.725, 0), 0.7);
+      const bl = new T.Mesh(bg, white); bl.rotation.x = i * Math.PI * 2 / 3; bl.position.x = -0.03; rotor.add(bl);
+    }
+    rotor.rotation.x = Math.random() * 6;
+    g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+    g.userData.rotor = rotor; return g;
+  }
+  buildModel(type) {
+    const T = window.THREE; const root = new T.Group(); root.userData.emit = []; root.userData.rotors = []; root.userData.r = 3;
+    if (type === 'wind') {
+      [[0, 0], [2.3, 0.9], [-2.2, 1.0], [1.1, -2.0], [-1.3, -2.1]].forEach((p) => { const t = this.turbine(); t.position.set(p[0], 0, p[1]); t.userData.snap = true; root.add(t); root.userData.rotors.push(t.userData.rotor); });
+      root.userData.r = 3.4;
+    } else if (type === 'hydro') {
+      const conc = this.mat('#CFCAC0', { roughness: 0.75 }), conc2 = this.mat('#B8B2A6', { roughness: 0.8 });
+      const R = 3.1, segs = 14, span = 1.5;
+      for (let i = 0; i < segs; i++) {
+        const a0 = -span / 2 + span * i / segs, a1 = -span / 2 + span * (i + 1) / segs, am = (a0 + a1) / 2;
+        const len = 2 * R * Math.sin((a1 - a0) / 2) + 0.02;
+        const m = new T.Mesh(new T.BoxGeometry(0.5, 2.2, len), i % 2 ? conc : conc2);
+        m.position.set(-Math.cos(am) * R + R, 0.3, Math.sin(am) * R); m.rotation.y = -am; root.add(m);
+        const top = new T.Mesh(new T.BoxGeometry(0.62, 0.08, len), this.mat('#E7E3DB')); top.position.set(m.position.x, 1.44, m.position.z); top.rotation.y = -am; root.add(top);
+      }
+      const resv = new T.Mesh(new T.CircleGeometry(1, 40, Math.PI / 2, Math.PI), new T.MeshStandardMaterial({ color: this.col('#2F78B5'), roughness: 0.1, metalness: 0.1 }));
+      resv.rotation.x = -Math.PI / 2; resv.scale.set(3.6, 3.0, 1); resv.position.set(-0.05, 1.05, 0); root.add(resv);
+      const ph = new T.Mesh(new T.BoxGeometry(1.3, 0.8, 2.0), this.mat('#E6E0D5')); ph.position.set(1.2, 0.0, 0); root.add(ph);
+      const roof = new T.Mesh(new T.BoxGeometry(1.36, 0.08, 2.06), this.mat('#59666E')); roof.position.set(1.2, 0.44, 0); root.add(roof);
+      const win = new T.Mesh(new T.BoxGeometry(0.02, 0.18, 1.6), this.mat('#3C4E5A', { roughness: 0.3 })); win.position.set(1.86, 0.12, 0); root.add(win);
+      const spill = new T.Mesh(new T.PlaneGeometry(1.2, 0.8), new T.MeshStandardMaterial({ color: this.col('#B9E3F5'), transparent: true, opacity: 0.85, roughness: 0.2, side: T.DoubleSide }));
+      spill.rotation.set(0, Math.PI / 2, -0.95); spill.position.set(0.55, 0.85, 0); root.add(spill);
+      const foam = new T.Mesh(new T.BoxGeometry(0.9, 0.08, 1.0), this.mat('#F4FBFE')); foam.position.set(0.9, 0.42, 0); root.add(foam);
+      const tail = new T.Mesh(new T.PlaneGeometry(2.4, 1.0), new T.MeshStandardMaterial({ color: this.col('#2F78B5'), roughness: 0.12 }));
+      tail.rotation.x = -Math.PI / 2; tail.position.set(2.2, 0.3, 0); root.add(tail);
+      [[1.6, 1.5], [1.6, -1.5]].forEach((p) => {
+        const pole = new T.Mesh(new T.CylinderGeometry(0.03, 0.06, 1.6, 6), this.mat('#8A9096', { metalness: 0.4 })); pole.position.set(p[0], 0.8, p[1]); root.add(pole);
+        const arm = new T.Mesh(new T.BoxGeometry(0.04, 0.04, 0.6), this.mat('#8A9096', { metalness: 0.4 })); arm.position.set(p[0], 1.5, p[1]); root.add(arm);
+      });
+      root.userData.r = 3.4;
+    } else if (type === 'nuclear') {
+      const conc = this.mat('#E6E2DA', { roughness: 0.7 }), conc2 = this.mat('#CFC8BC'), roofM = this.mat('#79828A'), dark = this.mat('#4B5860', { roughness: 0.4 });
+      const pad = new T.Mesh(new T.BoxGeometry(10.5, 2, 7.6), this.mat('#A8A497', { roughness: 1 })); pad.position.y = -0.98; root.add(pad);
+      const prof = [[2.0, 0], [1.66, 0.9], [1.36, 2.1], [1.26, 3.0], [1.31, 3.7], [1.44, 4.25]].map((q) => new T.Vector2(q[0], q[1]));
+      [[-2.9, -1.9], [-2.9, 2.0]].forEach((p) => {
+        const ct = new T.Mesh(new T.LatheGeometry(prof, 48), this.mat('#DAD4CB', { side: T.DoubleSide, roughness: 0.9 })); ct.position.set(p[0], -0.05, p[1]); root.add(ct);
+        const rim = new T.Mesh(new T.TorusGeometry(1.44, 0.04, 6, 48), this.mat('#B7B0A4')); rim.rotation.x = Math.PI / 2; rim.position.set(p[0], 4.2, p[1]); root.add(rim);
+        root.userData.emit.push({ p: new T.Vector3(p[0], 4.3, p[1]), smoke: false });
+        root.userData.emit.push({ p: new T.Vector3(p[0] + 0.5, 4.3, p[1] - 0.4), smoke: false });
+      });
+      [[1.2, -1.5], [1.2, 1.5]].forEach((p) => {
+        const cyl = new T.Mesh(new T.CylinderGeometry(1.0, 1.0, 1.7, 40), conc); cyl.position.set(p[0], 0.85, p[1]); root.add(cyl);
+        const dome = new T.Mesh(new T.SphereGeometry(1.0, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), conc); dome.position.set(p[0], 1.7, p[1]); root.add(dome);
+        const ring = new T.Mesh(new T.CylinderGeometry(1.02, 1.02, 0.12, 40), this.mat('#B9B3A8')); ring.position.set(p[0], 1.2, p[1]); root.add(ring);
+      });
+      const hall = new T.Mesh(new T.BoxGeometry(1.7, 1.2, 5.0), conc2); hall.position.set(3.3, 0.6, 0); root.add(hall);
+      const hroof = new T.Mesh(new T.BoxGeometry(1.76, 0.1, 5.06), roofM); hroof.position.set(3.3, 1.25, 0); root.add(hroof);
+      const ws = new T.Mesh(new T.BoxGeometry(0.02, 0.18, 4.4), dark); ws.position.set(4.16, 0.75, 0); root.add(ws);
+      const stack = new T.Mesh(new T.CylinderGeometry(0.1, 0.16, 4.8, 14), this.mat('#ECE8E2')); stack.position.set(1.2, 2.4, 0); root.add(stack);
+      [0.94, 0.84].forEach((f) => { const band = new T.Mesh(new T.CylinderGeometry(0.13, 0.13, 0.2, 14), this.mat('#B8432F')); band.position.set(1.2, 4.8 * f, 0); root.add(band); });
+      const yard = new T.Mesh(new T.BoxGeometry(1.2, 0.08, 2.4), this.mat('#8E9398', { metalness: 0.3 })); yard.position.set(4.7, 0.05, -2.6); root.add(yard);
+      for (let i = 0; i < 3; i++) { const tr = new T.Mesh(new T.BoxGeometry(0.4, 0.45, 0.5), this.mat('#6D7A84', { metalness: 0.3 })); tr.position.set(4.7, 0.3, -3.4 + i * 0.8); root.add(tr); }
+      root.userData.r = 5.2;
+    } else if (type === 'battery') {
+      const pad = new T.Mesh(new T.BoxGeometry(6.2, 0.12, 3.4), this.mat('#B9B6AE', { roughness: 1 })); pad.position.y = 0.0; root.add(pad);
+      const cont = new T.BoxGeometry(0.95, 0.5, 0.42), contM = this.mat('#E9EDEF', { roughness: 0.5 }), ventM = this.mat('#5B6870', { roughness: 0.5 }), vent = new T.BoxGeometry(0.7, 0.12, 0.02);
+      for (let r = 0; r < 2; r++) for (let c = 0; c < 5; c++) {
+        const x = -2.3 + c * 1.1, z = -0.7 + r * 1.3;
+        const b = new T.Mesh(cont, contM); b.position.set(x, 0.31, z); root.add(b);
+        const v = new T.Mesh(vent, ventM); v.position.set(x, 0.4, z + (r ? 0.22 : -0.22)); root.add(v);
+      }
+      const tr = new T.Mesh(new T.BoxGeometry(0.6, 0.55, 0.6), this.mat('#7C8A93', { metalness: 0.3 })); tr.position.set(2.75, 0.33, 0); root.add(tr);
+      [-1.4, 1.4].forEach((z) => { const pole = new T.Mesh(new T.CylinderGeometry(0.03, 0.05, 1.3, 6), this.mat('#8A9096', { metalness: 0.4 })); pole.position.set(2.75, 0.7, z); root.add(pole); });
+      root.userData.r = 3.2;
+    } else if (type === 'pumped') {
+      const mound = new T.Mesh(new T.CylinderGeometry(2.7, 3.6, 1.5, 40), this.mat('#7C8F5A', { roughness: 1 })); mound.position.set(-1.5, 0.6, 0); root.add(mound);
+      const rim = new T.Mesh(new T.CylinderGeometry(2.6, 2.7, 0.35, 48, 1, true), this.mat('#CFCAC0', { side: T.DoubleSide })); rim.position.set(-1.5, 1.5, 0); root.add(rim);
+      const up = new T.Mesh(new T.CircleGeometry(2.55, 48), new T.MeshStandardMaterial({ color: this.col('#2F78B5'), roughness: 0.1, metalness: 0.1 })); up.rotation.x = -Math.PI / 2; up.position.set(-1.5, 1.6, 0); root.add(up);
+      const pipe = new T.Mesh(new T.CylinderGeometry(0.16, 0.16, 3.6, 16), this.mat('#6E7A82', { metalness: 0.5, roughness: 0.4 })); pipe.position.set(1.4, 0.85, 0); pipe.rotation.z = 1.18; root.add(pipe);
+      const ph = new T.Mesh(new T.BoxGeometry(1.4, 0.8, 1.6), this.mat('#E6E0D5')); ph.position.set(3.2, 0.25, 0); root.add(ph);
+      const roof = new T.Mesh(new T.BoxGeometry(1.46, 0.08, 1.66), this.mat('#59666E')); roof.position.set(3.2, 0.68, 0); root.add(roof);
+      const low = new T.Mesh(new T.CircleGeometry(1.2, 40), new T.MeshStandardMaterial({ color: this.col('#2F78B5'), roughness: 0.1 })); low.rotation.x = -Math.PI / 2; low.position.set(4.7, 0.08, 0); root.add(low);
+      root.userData.r = 4.6;
+    } else if (type === 'solar') {
+      const panelG = new T.BoxGeometry(0.92, 0.04, 0.62), legG = new T.BoxGeometry(0.05, 1, 0.05);
+      const panelM = this.mat('#1F3B60', { roughness: 0.22, metalness: 0.55 }), frameM = this.mat('#B9BEC2', { metalness: 0.5, roughness: 0.4 });
+      for (let rz = -2; rz <= 2; rz++) {
+        const row = new T.Group(); row.position.set(0, 0, rz * 1.05); row.userData.snap = true;
+        for (let cx = -3; cx <= 2; cx++) {
+          const x = cx * 1.0 + 0.5;
+          const pn = new T.Mesh(panelG, panelM); pn.position.set(x, 0.5, 0); pn.rotation.x = 0.55; row.add(pn);
+          const back = new T.Mesh(legG, frameM); back.scale.y = 0.62; back.position.set(x, 0.31, -0.2); row.add(back);
+          const front = new T.Mesh(legG, frameM); front.scale.y = 0.34; front.position.set(x, 0.17, 0.2); row.add(front);
+        }
+        root.add(row);
+      }
+      const inv = new T.Mesh(new T.BoxGeometry(0.6, 0.55, 0.9), this.mat('#E3E6E8')); inv.position.set(3.8, 0.27, 0); inv.userData.snap = true; root.add(inv);
+      const invT = new T.Mesh(new T.BoxGeometry(0.64, 0.06, 0.94), this.mat('#8A9399')); invT.position.set(3.8, 0.58, 0); invT.userData.snap = true; root.add(invT);
+      root.userData.r = 4.0;
+    } else {
+      const wall = this.mat('#CEC7BB'), wall2 = this.mat('#BAB2A6'), dark = this.mat('#4B5860', { roughness: 0.4 }), roofM = this.mat('#79828A');
+      const pad = new T.Mesh(new T.BoxGeometry(8, 2, 5.6), this.mat('#A39E90', { roughness: 1 })); pad.position.y = -0.98; root.add(pad);
+      const hall = new T.Mesh(new T.BoxGeometry(3.4, 1.3, 1.7), wall); hall.position.set(0.6, 0.65, 0.4); root.add(hall);
+      const hr = new T.Mesh(new T.BoxGeometry(3.46, 0.1, 1.76), roofM); hr.position.set(0.6, 1.33, 0.4); root.add(hr);
+      const boiler = new T.Mesh(new T.BoxGeometry(1.5, 2.3, 1.5), wall2); boiler.position.set(1.4, 1.15, -1.2); root.add(boiler);
+      const br = new T.Mesh(new T.BoxGeometry(1.56, 0.1, 1.56), roofM); br.position.set(1.4, 2.33, -1.2); root.add(br);
+      const ws = new T.Mesh(new T.BoxGeometry(3.0, 0.16, 0.02), dark); ws.position.set(0.6, 0.85, 1.26); root.add(ws);
+      const ws2 = new T.Mesh(new T.BoxGeometry(3.0, 0.16, 0.02), dark); ws2.position.set(0.6, 0.45, 1.26); root.add(ws2);
+      [[0.4, -1.5], [2.5, -1.4]].forEach((p, i) => {
+        const hgt = i ? 4.4 : 5.4;
+        const ch = new T.Mesh(new T.CylinderGeometry(0.15, 0.24, hgt, 18), this.mat('#ECE8E2')); ch.position.set(p[0], hgt / 2, p[1]); root.add(ch);
+        [0.92, 0.8, 0.68].forEach((f) => { const band = new T.Mesh(new T.CylinderGeometry(0.17 + (1 - f) * 0.09, 0.17 + (1 - f) * 0.09, 0.22, 18), this.mat('#B8432F')); band.position.set(p[0], hgt * f, p[1]); root.add(band); });
+        root.userData.emit.push({ p: new T.Vector3(p[0], hgt + 0.1, p[1]), smoke: true });
+      });
+      const prof = [[1.3, 0], [1.08, 0.6], [0.9, 1.4], [0.84, 2.0], [0.87, 2.45], [0.95, 2.8]].map((q) => new T.Vector2(q[0], q[1]));
+      [[-2.4, 1.0], [-2.4, -1.4]].forEach((p) => {
+        const ct = new T.Mesh(new T.LatheGeometry(prof, 40), this.mat('#D9D3CA', { side: T.DoubleSide, roughness: 0.9 })); ct.position.set(p[0], -0.05, p[1]); root.add(ct);
+        const rim = new T.Mesh(new T.TorusGeometry(0.95, 0.03, 6, 40), this.mat('#B7B0A4')); rim.rotation.x = Math.PI / 2; rim.position.set(p[0], 2.75, p[1]); root.add(rim);
+        root.userData.emit.push({ p: new T.Vector3(p[0], 2.8, p[1]), smoke: false });
+      });
+      [[3.0, 1.6, 0.9], [3.3, 0.2, 0.7]].forEach((p) => { const pile = new T.Mesh(new T.ConeGeometry(p[2], p[2] * 0.7, 9), this.mat('#242528', { roughness: 0.95, flatShading: true })); pile.position.set(p[0], p[2] * 0.35, p[1]); root.add(pile); });
+      const conv = new T.Mesh(new T.BoxGeometry(1.7, 0.08, 0.14), this.mat('#6A6157')); conv.position.set(2.5, 0.9, -0.3); conv.rotation.z = -0.5; root.add(conv);
+      root.userData.r = 4.2;
+    }
+    root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    return root;
+  }
+
+  ghost(type) {
+    const T = window.THREE;
+    if (!this.ghosts[type]) {
+      const g = this.buildModel(type);
+      g.traverse((o) => { if (o.isMesh) { o.material = this.ghostMat; o.castShadow = false; o.receiveShadow = false; } });
+      const r = g.userData.r; const ring = new T.Mesh(new T.RingGeometry(r - 0.18, r, 56), this.ghostMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.3; g.add(ring);
+      g.visible = false; this.three.scene.add(g); this.ghosts[type] = g;
+    }
+    return this.ghosts[type];
+  }
+
+  placeRoot(root, type, x, z, tx, tz) {
+    const y = this.sampleH(x, z);
+    root.position.set(x, type === 'hydro' ? y + 0.05 : y, z);
+    root.rotation.y = (type === 'hydro' && tx !== undefined) ? Math.atan2(-tz, tx) : 0;
+    root.children.forEach((ch) => { if (ch.userData.snap) ch.position.y = this.sampleH(x + ch.position.x, z + ch.position.z) - root.position.y; });
+    root.updateMatrixWorld(true);
+  }
+
+  setConstruction(plant, on) {
+    plant.root.traverse((o) => {
+      if (!o.isMesh) return;
+      if (on) { if (!o.userData.realMat) o.userData.realMat = o.material; o.material = this.consMat; }
+      else if (o.userData.realMat) { o.material = o.userData.realMat; o.userData.realMat = null; }
+    });
+  }
+
+  addPlant(type, x, z, o) {
+    o = o || {};
+    const it = this.itemBy[type];
+    const root = this.buildModel(type); this.placeRoot(root, type, x, z, o.tx, o.tz); this.three.scene.add(root);
+    const caps = o.units || [it.mw];
+    const plant = { id: Math.random().toString(36).slice(2), type, x, z, tx: o.tx, tz: o.tz, root, sprites: [], locked: !!o.locked, name: o.name || it.name,
+      units: caps.map((cap) => ({ cap, out: 0, why: '' })), build: o.build || 0, buildTotal: o.build || 0, ytd: 0, cur: 0, cf: 0, loc: 1 };
+    plant.mw = caps.reduce((s, v) => s + v, 0);
+    this.updateLoc(plant);
+    if (plant.build > 0) { this.setConstruction(plant, true); root.scale.y = 0.35; }
+    this.makeSmoke(plant);
+    this.plants.push(plant);
+    if (plant.locked) { const sp = this.makeLabel(plant.name, 12, false, '#FFE7A8', 'rgba(60,40,10,0.8)'); this.addLabel(sp, x, z, 7, 420); plant.label = sp; }
+    if (this.sim) this.scheduleOutages(plant);
+    return plant;
+  }
+  updateLoc(plant) {
+    if (plant.type === 'wind') plant.loc = this.windFactor(plant.x, plant.z);
+    else if (plant.type === 'solar') plant.loc = this.solarFactor(plant.x, plant.z);
+    else plant.loc = 1;
+  }
+  makeSmoke(plant) {
+    const T = window.THREE;
+    plant.sprites.forEach((s) => this.three.scene.remove(s.sp)); plant.sprites = [];
+    plant.root.userData.emit.forEach((em) => {
+      const wp = plant.root.localToWorld(em.p.clone());
+      for (let i = 0; i < 9; i++) {
+        const m = new T.SpriteMaterial({ map: this.smokeTex, color: em.smoke ? this.col('#8F949A') : this.col('#FFFFFF'), transparent: true, depthWrite: false, opacity: 0 });
+        const sp = new T.Sprite(m); this.three.scene.add(sp);
+        plant.sprites.push({ sp, base: wp, age: (i / 9) * 4.5, life: 4.5, size: em.smoke ? 0.7 : 1.5, smoke: em.smoke });
+      }
+    });
+  }
+  windFactor(x, z) { const hk = this.sampleH(x, z) / this.EX; return Math.min(1.35, Math.max(0.65, 0.65 + hk * 0.7)); }
+  solarFactor(x, z) { const hk = this.sampleH(x, z) / this.EX; const south = Math.min(1, Math.max(0, (z + 104) / 208)); return Math.min(1.15, Math.max(0.75, 0.88 + south * 0.24 - Math.max(0, hk - 1.2) * 0.25)); }
+
+  evaluate(type, x, z, ignore) {
+    const it = this.itemBy[type];
+    let px = x, pz = z, tx, tz, river = '';
+    if (!this.inside(x, z)) return { ok: false, why: 'Stavať môžeš len na Slovensku' };
+    const rv = this.nearestRiver(x, z);
+    if (type === 'hydro') {
+      if (rv.d > 3.5) return { ok: false, why: 'Vodná elektráreň musí stáť na rieke' };
+      px = rv.x; pz = rv.z; tx = rv.tx; tz = rv.tz; river = rv.n;
+      if (!this.inside(px, pz)) return { ok: false, why: 'Táto časť rieky je za hranicou' };
+    } else if (rv.d < 1.2) return { ok: false, why: 'Tu tečie ' + (rv.n ? 'rieka ' + rv.n : 'rieka') + ' – vyber suché miesto' };
+    if (type === 'nuclear') { if (rv.d > 6) return { ok: false, why: 'Jadrová elektráreň potrebuje rieku na chladenie (do 6 km)' }; river = rv.n; }
+    if (type === 'pumped') { const hk = this.sampleH(px, pz) / this.EX; if (hk < 0.55) return { ok: false, why: 'Prečerpávacia VE potrebuje kopce (nad 550 m)' }; if (rv.d > 6) return { ok: false, why: 'Prečerpávacia VE potrebuje rieku do 6 km' }; river = rv.n; }
+    const lk = this.inLake(px, pz, type === 'hydro' ? 0 : 1.5);
+    if (lk) return { ok: false, why: 'Tu je ' + (lk.n || 'jazero') };
+    for (const ct of this.citiesXZ) { if (Math.hypot(px - ct.x, pz - ct.z) < (type === 'battery' ? ct.R * 0.4 + 0.5 : ct.R * 0.75 + 2)) return { ok: false, why: 'Príliš blízko mesta ' + ct.name }; }
+    for (const p of this.plants) { if (p === ignore) continue; if (Math.hypot(px - p.x, pz - p.z) < p.root.userData.r + 3.5) return { ok: false, why: 'Príliš blízko inej elektrárne' }; }
+    const cost = ignore ? (ignore.build > 0 ? 0 : Math.round(it.price * 0.1)) : it.price;
+    if (this.sim && this.sim.money - cost < -this.CREDIT) return { ok: false, why: 'Prekročil by si úverový limit 12 mld. € (' + this.fmtMoney(cost) + ')' };
+    let sub = it.mw + ' MW';
+    if (type === 'wind') { const f = this.windFactor(px, pz); sub += ' · vietor ' + (f < 0.85 ? 'slabší' : f < 1.05 ? 'priemerný' : 'silný') + ' (≈' + Math.round(24 * f) + ' %)'; }
+    if (type === 'solar') { const f = this.solarFactor(px, pz); sub += ' · slnko ' + (f < 0.95 ? 'slabšie' : f < 1.05 ? 'priemerné' : 'výborné') + ' (≈' + Math.round(11 * f) + ' %)'; }
+    if (type === 'hydro') sub += ' · na rieke ' + (river || '');
+    if (type === 'nuclear') sub += ' · chladenie z rieky ' + (river || '');
+    if (type === 'coal') sub += ' · 820 g CO₂/kWh';
+    if (type === 'battery') sub = it.mw + ' MW / ' + it.mw * it.hours + ' MWh · nabíja cez deň, vybíja večer';
+    if (type === 'pumped') sub = it.mw + ' MW / ' + this.fmtNum(it.mw * it.hours) + ' MWh · voda z rieky ' + (river || '');
+    sub += ' · ' + (ignore ? (cost ? 'presun ' + this.fmtMoney(cost) : 'presun zadarmo') : this.fmtMoney(cost));
+    return { ok: true, x: px, z: pz, tx, tz, sub, river, cost };
+  }
+
+  // ================= SIMULATION =================
+  addStarter() {
+    // the player starts with a single real plant: Jaslovské Bohunice V2 nuclear power station (2 x 505 MW); everything else is imported
+    const bp = this.P(17.683, 48.494); this.addPlant('nuclear', bp[0], bp[1], { locked: true, name: 'JE Jaslovské Bohunice V2', units: [505, 505] });
+  }
+  newGame() {
+    if (!this.plants.length) this.addStarter();
+    this.sim = {
+      year: 2027, yearIdx: 0, day: 0, acc: 0,
+      money: 3.0e9, pop: 5420000, perCap: 4.72,
+      Tanom: 0, cloud: 0.7, lw: 0, fa: 0, gas: 36, co2: 77, gasT: 36, co2T: 77,
+      cleanAvg: 0.8, co2Avg: 130, todayArr: 0, todayDep: 0, price: 104, prevPrice: 104, events: [], history: [],
+      today: null, y: null
+    };
+    this.startYear();
+    this.stepDay(true);
+    this.setState({ running: false, modal: 'intro', report: null });
+  }
+  startYear() {
+    const s = this.sim;
+    const z6 = () => ({ nuclear: 0, hydro: 0, wind: 0, solar: 0, coal: 0, gas: 0 });
+    s.y = { gen: z6(), months: this.MDAYS.map(() => ({ gen: z6(), demand: 0, imp: 0, dis: 0, emis: 0, days: 0 })), slots: this.SLOT_LABELS.map(() => ({ out: z6(), dem: 0, imp: 0, dis: 0, chg: 0, price: 0 })), dis: 0, chg: 0, demand: 0, imp: 0, exp: 0, unserved: 0, curt: 0, sales: 0, bonus: 0, fuel: 0, co2cost: 0, om: 0, impCost: 0, loan: 0, tax: 0, interest: 0, capex: 0, arr: 0, dep: 0, refunds: 0, emis: 0, priceSum: 0, cleanSum: 0, blackoutDays: 0, popStart: s.pop, moneyStart: s.money, days: 0, events: [] };
+    this.plants.forEach((p) => { p.ytd = 0; this.scheduleOutages(p); });
+  }
+  scheduleOutages(p) {
+    // planned refuelling / maintenance window for each unit (nuclear ~30 days, coal ~25 days, others short)
+    p.units.forEach((u) => {
+      if (p.type === 'nuclear') { u.plan = 60 + Math.floor(Math.random() * 230); u.planLen = 26 + Math.floor(Math.random() * 10); }
+      else if (p.type === 'coal') { u.plan = 120 + Math.floor(Math.random() * 150); u.planLen = 21 + Math.floor(Math.random() * 10); }
+      else { u.plan = 150 + Math.floor(Math.random() * 120); u.planLen = 3 + Math.floor(Math.random() * 4); }
+    });
+  }
+  eventDefs() {
+    return [
+      { id: 'gas', name: 'Plynová kríza v Európe', p: 0.0012, len: [40, 70], months: null, bg: '#B3541E', text: 'Cena plynu vyletela – drahší plyn zdražuje elektrinu v celej Európe.' },
+      { id: 'drought', name: 'Sucho', p: 0.004, len: [30, 50], months: [6, 7, 8], bg: '#B07A1E', text: 'Rieky majú menej vody – vodné elektrárne vyrábajú menej a jadrové musia znížiť výkon (teplá voda na chladenie).' },
+      { id: 'flood', name: 'Povodne', p: 0.003, len: [7, 12], months: [3, 4, 5, 6], bg: '#2B6CA3', text: 'Rozvodnené rieky – vodné elektrárne idú naplno, no niektoré stavby pri riekach museli odstaviť.' },
+      { id: 'heat', name: 'Horúčava', p: 0.005, len: [8, 15], months: [6, 7, 7, 8], bg: '#C0392B', text: 'Klimatizácie zvyšujú spotrebu, solárne panely v horúčave strácajú účinnosť a teplá voda obmedzuje chladenie.' },
+      { id: 'cold', name: 'Tuhý mráz', p: 0.005, len: [6, 12], months: [0, 1, 11], bg: '#3A6EA5', text: 'Kúrenie zvyšuje spotrebu a ceny elektriny rastú.' },
+      { id: 'storm', name: 'Víchrica', p: 0.0025, len: [2, 3], months: null, bg: '#5B4A8B', text: 'Príliš silný vietor – turbíny sa z bezpečnosti zastavili, niektoré sa poškodili.' },
+      { id: 'dunkel', name: 'Bezvetrie a hmla', p: 0.004, len: [6, 10], months: [0, 1, 10, 11], bg: '#5C6670', text: 'Nefúka a je zamračené – slnko a vietor takmer nevyrábajú, cena rastie.' },
+      { id: 'hail', name: 'Krupobitie', p: 0.003, len: [1, 2], months: [5, 6, 7], bg: '#4A6274', text: 'Ľadovec poškodil solárne panely – oprava potrvá niekoľko dní.' },
+      { id: 'glut', name: 'Prebytok zelenej energie v Európe', p: 0.003, len: [5, 9], months: [3, 4, 5, 6, 7], bg: '#2E9A57', text: 'Veterno a slnečno v celej Európe – burzová cena prudko klesla.' },
+      { id: 'ets', name: 'Zdraženie emisných povoleniek', p: 0.001, len: [80, 120], months: null, bg: '#7A4E2D', text: 'Vypúšťanie CO₂ je drahšie – uhlie a plyn sa menej oplatia.' }
+    ];
+  }
+  hasEv(id) { return this.sim.events.some((e) => e.id === id); }
+  dateOf(d) { let m = 0, dd = d; while (m < 11 && dd >= this.MDAYS[m]) { dd -= this.MDAYS[m]; m++; } return { m, dd: dd + 1 }; }
+  plantName(p) { return p.name; }
+
+  stepDay(preview) {
+    const s = this.sim; const d = s.day; const { m } = this.dateOf(d); const TAU = Math.PI * 2;
+    // ---- events ----
+    if (!preview) {
+      s.events.forEach((e) => { e.left--; }); s.events = s.events.filter((e) => e.left > 0);
+      if (s.events.length < 2 && s.y.events.length < 6) {
+        for (const ev of this.eventDefs()) {
+          if (this.hasEv(ev.id) || s.y.events.indexOf(ev.name) >= 0) continue; if (ev.months && ev.months.indexOf(m) < 0) continue;
+          if (Math.random() < ev.p) { this.startEvent(ev); break; }
+        }
+      }
+    }
+    // ---- weather ----
+    s.Tanom = 0.85 * s.Tanom + this.gauss() * 1.6;
+    let T = 9 - 11 * Math.cos(TAU * (d - 20) / 365) + s.Tanom;
+    if (this.hasEv('heat')) T = Math.max(T, 33 + Math.random() * 3);
+    if (this.hasEv('cold')) T = Math.min(T, -12 - Math.random() * 5);
+    const cloudMean = 0.6 + 0.15 * Math.cos(TAU * (d - 10) / 365);
+    s.cloud = Math.min(1, Math.max(0.05, 0.8 * s.cloud + 0.2 * cloudMean + this.gauss() * 0.12));
+    s.lw = 0.75 * s.lw + this.gauss() * 0.32;
+    let w = (1 + 0.18 * Math.cos(TAU * (d - 15) / 365)) * Math.exp(s.lw);
+    s.fa = 0.9 * s.fa + this.gauss() * 0.08;
+    let flow = (1 + 0.45 * Math.cos(TAU * (d - 105) / 365)) * Math.exp(s.fa);
+    let cloud = s.cloud;
+    if (this.hasEv('drought')) flow *= 0.45;
+    if (this.hasEv('flood')) flow = Math.max(flow, 2.3);
+    if (this.hasEv('dunkel')) { w *= 0.2; cloud = Math.max(cloud, 0.95); }
+    if (this.hasEv('storm')) w = Math.max(w, 3.2);
+    if (this.hasEv('glut')) { w = Math.max(w, 1.6); cloud = Math.min(cloud, 0.2); }
+    const storm = w > 2.9;
+    const solarCF = (0.19 + 0.13 * Math.cos(TAU * (d - 172) / 365)) * (1 - 0.72 * cloud) * (this.hasEv('heat') ? 0.93 : 1);
+    const windCF = storm ? 0 : Math.min(0.85, 0.16 * w * w);
+    const hydroCF = Math.min(0.95, 0.35 * flow);
+    const thermalDerate = (this.hasEv('drought') ? 0.88 : 1) * (this.hasEv('heat') ? 0.9 : 1);
+    // ---- fuel & carbon markets ----
+    s.gasT = this.hasEv('gas') ? 85 : 36; s.co2T = this.hasEv('ets') ? 107 : 77;
+    s.gas = Math.max(15, s.gas + 0.05 * (s.gasT - s.gas) + this.gauss() * 1.0);
+    s.co2 = Math.max(30, s.co2 + 0.04 * (s.co2T - s.co2) + this.gauss() * 1.2);
+    // ---- daily exchange price (EUR/MWh): 2025 Slovak monthly average x fuel index x weather x events ----
+    const fuelRef = 36 / 0.52 + 0.37 * 77; const fuelNow = s.gas / 0.52 + 0.37 * s.co2;
+    let price = 0.94 * this.MONTH_PRICE[m] * (0.45 + 0.55 * fuelNow / fuelRef);
+    price *= 1 - 0.18 * Math.min(1.5, Math.max(-1, w - 1)) - 0.1 * (0.6 - cloud);
+    price *= 1 + 0.012 * Math.max(0, -s.Tanom) + 0.01 * Math.max(0, T - 28);
+    if (this.hasEv('dunkel')) price *= 1.35; if (this.hasEv('cold')) price *= 1.25; if (this.hasEv('glut')) price *= 0.55;
+    price *= Math.exp(this.gauss() * 0.08);
+    price = Math.max(0, Math.min(650, price));
+    // ---- daily demand (MW): population x consumption per person / 8760 h, winter higher ----
+    let demand = s.pop * s.perCap / 8760 * (1 + 0.12 * Math.cos(TAU * (d - 15) / 365)) * (1 + 0.006 * Math.max(0, -s.Tanom) + 0.006 * Math.max(0, T - 27));
+    if (this.hasEv('heat')) demand *= 1.06; if (this.hasEv('cold')) demand *= 1.12;
+    // ---- the day is split into 6 blocks of 4 hours: night, morning, noon, afternoon, evening peak, late evening ----
+    const NS = 6, HB = 4;
+    const summer = 0.5 + 0.5 * Math.cos(TAU * (d - 172) / 365);
+    const sw = [0, 0.05 + 0.35 * summer, 1, 0.9, 0.05 + 0.3 * summer, 0]; const swm = sw.reduce((a, b) => a + b, 0) / NS;
+    const solShape = sw.map((v) => v / swm);
+    const WIND_SHAPE = [1.06, 1.0, 0.94, 0.94, 1.0, 1.06];
+    const dem = this.DEM_SHAPE.map((f) => demand * f);
+    const pr = this.PRICE_SHAPE.map((f, k) => Math.max(0, price * f * (1 - 0.12 * summer * Math.max(0, solShape[k] - 1))));
+    // ---- plants: availability, outages, construction ----
+    const all = this.plants.concat(this.hidden);
+    const keys = ['nuclear', 'hydro', 'wind', 'solar', 'coal', 'gas'];
+    const slot = []; for (let k = 0; k < NS; k++) slot.push({ dem: dem[k], price: pr[k], out: { nuclear: 0, hydro: 0, wind: 0, solar: 0, coal: 0, gas: 0 }, chg: 0, dis: 0, imp: 0, exp: 0, uns: 0, curt: 0 });
+    const disp = [], stores = [];
+    for (const p of all) {
+      if (p.build > 0) {
+        if (!preview) { p.build--; if (p.root) p.root.scale.y = 0.35 + 0.65 * (1 - p.build / Math.max(1, p.buildTotal)); if (p.build === 0) { this.setConstruction(p, false); p.root.scale.y = 1; this.toast('Dokončená stavba: ' + p.name + ' (' + p.mw + ' MW)'); } }
+        p.cur = 0; p.chgToday = 0; p.disToday = 0; continue;
+      }
+      let avail = 0;
+      for (const u of p.units) {
+        if (!preview) {
+          if (u.out > 0) { u.out--; if (u.out === 0) u.why = ''; }
+          if (u.plan !== undefined && d === u.plan && u.out === 0) { u.out = u.planLen; u.why = p.type === 'nuclear' ? 'výmena paliva a revízia' : p.type === 'coal' ? 'ročná odstávka' : 'údržba'; }
+          const pf = p.type === 'nuclear' ? 1 / 700 : p.type === 'coal' ? 1 / 300 : p.type === 'gas' ? 0 : 1 / 2000;
+          if (u.out === 0 && Math.random() < pf) { u.out = p.type === 'nuclear' ? 3 + Math.floor(Math.random() * 12) : 2 + Math.floor(Math.random() * 7); u.why = p.type === 'nuclear' ? 'porucha reaktora' : 'porucha'; if (p.type === 'nuclear' || p.type === 'coal') this.toast('Porucha: ' + p.name + ' – blok odstavený na ' + u.out + ' dní'); }
+        }
+        if (u.out === 0) avail += u.cap;
+      }
+      p.avail = avail;
+      if (p.type === 'coal' || p.type === 'gas') { disp.push(p); continue; }
+      if (p.type === 'battery' || p.type === 'pumped') { stores.push(p); continue; }
+      let sum = 0;
+      for (let k = 0; k < NS; k++) {
+        let mw = 0;
+        if (p.type === 'solar') mw = avail * solarCF * (p.loc || 1) * solShape[k];
+        else if (p.type === 'wind') mw = avail * Math.min(0.9, windCF * (p.loc || 1) * WIND_SHAPE[k]);
+        else if (p.type === 'hydro') mw = avail * hydroCF * (p.cfScale || 1);
+        else if (p.type === 'nuclear') mw = avail * 0.97 * thermalDerate;
+        slot[k].out[p.type] += mw; sum += mw;
+      }
+      p.cur = sum / NS;
+    }
+    // ---- storage: charge in the two cheapest blocks, discharge in the two most expensive (buy low, sell high) ----
+    const order = pr.map((v, k) => k).sort((a, b) => pr[a] - pr[b]);
+    const cheap = [order[0], order[1]], dear = [order[NS - 1], order[NS - 2]];
+    for (const p of stores) {
+      const it = this.itemBy[p.type]; const P = p.avail; const E = p.mw * it.hours; p.soc = Math.min(E, p.soc || 0);
+      let chgT = 0, disT = 0;
+      if (P > 0 && pr[dear[1]] * it.eta > pr[cheap[1]] * 1.05) {
+        for (let k = 0; k < NS; k++) {
+          if (cheap.indexOf(k) >= 0) { const c = Math.min(P * HB, (E - p.soc) / it.eta); if (c > 0) { p.soc += c * it.eta; slot[k].chg += c / HB; chgT += c; } }
+          else if (dear.indexOf(k) >= 0) { const x = Math.min(P * HB, p.soc); if (x > 0) { p.soc -= x; slot[k].dis += x / HB; disT += x; } }
+        }
+      }
+      p.chgToday = chgT; p.disToday = disT; p.cur = disT / 24;
+    }
+    // ---- per block: coal & gas follow the merit order (run when the price covers fuel + CO2), then import / export ----
+    const mcCoal = 30 + 0.95 * s.co2, mcGas = s.gas / 0.52 + 0.37 * s.co2 + 4;
+    disp.sort((a, b) => (a.type === 'coal' ? mcCoal : mcGas) - (b.type === 'coal' ? mcCoal : mcGas));
+    disp.forEach((p) => { p.cur = 0; });
+    for (let k = 0; k < NS; k++) {
+      const sl = slot[k];
+      const must = sl.out.nuclear + sl.out.hydro + sl.out.wind + sl.out.solar;
+      let residual = sl.dem + sl.chg - sl.dis - must;
+      for (const p of disp) {
+        const cap = p.avail * (p.type === 'coal' ? 0.92 * thermalDerate : 0.9); const mc = p.type === 'coal' ? mcCoal : mcGas;
+        let mw = sl.price >= mc ? cap : Math.min(cap, Math.max(0, residual));
+        if (sl.price < mc && p.type === 'gas') mw = Math.max(mw, Math.min(cap, 250));
+        sl.out[p.type] += mw; residual -= mw; p.cur += mw / NS;
+      }
+      if (residual > 0) { sl.imp = Math.min(3500, residual); sl.uns = Math.max(0, residual - sl.imp); }
+      else { sl.exp = Math.min(2500, -residual); sl.curt = -residual - sl.exp; }
+    }
+    // ---- daily totals (MWh) and money ----
+    const out = { nuclear: 0, hydro: 0, wind: 0, solar: 0, coal: 0, gas: 0 };
+    let E_dem = 0, E_imp = 0, E_exp = 0, E_uns = 0, E_curt = 0, E_dis = 0, E_chg = 0, sales = 0, expRev = 0, impCost = 0, fuel = 0, co2cost = 0, emisKg = 0;
+    for (const sl of slot) {
+      keys.forEach((kk) => { out[kk] += sl.out[kk] * HB; });
+      E_dem += sl.dem * HB; E_imp += sl.imp * HB; E_exp += sl.exp * HB; E_uns += sl.uns * HB; E_curt += sl.curt * HB; E_dis += sl.dis * HB; E_chg += sl.chg * HB;
+      sales += (sl.dem - sl.uns) * HB * sl.price; expRev += sl.exp * HB * sl.price * 0.95; impCost += sl.imp * HB * sl.price * 1.15;
+      fuel += (sl.out.nuclear * 10 + sl.out.coal * 30 + sl.out.gas * (s.gas / 0.52 + 4)) * HB;
+      co2cost += (sl.out.coal * 0.95 + sl.out.gas * 0.37) * HB * s.co2;
+      emisKg += (sl.out.nuclear * 12 + sl.out.hydro * 24 + sl.out.wind * 11 + sl.out.solar * 48 + sl.out.coal * 820 + sl.out.gas * 490 + sl.imp * 400) * HB;
+    }
+    const genE = keys.reduce((a, kk) => a + out[kk], 0);
+    const cleanE = out.nuclear + out.hydro + out.wind + out.solar;
+    const clean = (cleanE - Math.min(E_curt, cleanE) + E_imp * 0.4) / Math.max(1, genE - E_curt + E_imp);
+    s.cleanAvg = preview ? clean : 0.92 * s.cleanAvg + 0.08 * clean;
+    const mult = this.bonusMult(s.cleanAvg);
+    const bonus = (sales + expRev) * (mult - 1);
+    let om = 0; all.forEach((p) => { const om1 = p.type === 'gas' ? 25000 : this.itemBy[p.type].om; om += p.mw * om1 / 365; });
+    const loan = 0;
+    const opNet = sales + expRev + bonus - impCost - fuel - co2cost - om - loan;
+    const tax = Math.max(0, opNet) * 0.24; // 24 % corporate tax on positive profit
+    const interest = s.money < 0 ? -s.money * 0.045 / 365 : 0;
+    const net = opNet - tax - interest;
+    const emisT = emisKg / 1000;
+    const intensity = emisKg / Math.max(1, E_dem - E_uns);
+    const avgPrice = pr.reduce((a, b) => a + b, 0) / NS;
+    s.prevPrice = s.price; s.price = avgPrice;
+    if (!preview) {
+      s.money += net;
+      const yy = s.y; keys.forEach((kk) => { yy.gen[kk] += out[kk]; });
+      yy.demand += E_dem; yy.imp += E_imp; yy.exp += E_exp; yy.unserved += E_uns; yy.curt += E_curt; yy.dis += E_dis; yy.chg += E_chg;
+      yy.sales += sales + expRev; yy.bonus += bonus; yy.fuel += fuel; yy.co2cost += co2cost; yy.om += om; yy.impCost += impCost; yy.loan += loan; yy.tax += tax; yy.interest += interest; yy.emis += emisT;
+      yy.priceSum += avgPrice; yy.cleanSum += clean; yy.days++; if (E_uns > 24) yy.blackoutDays++;
+      const mo = yy.months[m]; keys.forEach((kk) => { mo.gen[kk] += out[kk]; }); mo.demand += E_dem; mo.imp += E_imp; mo.dis += E_dis; mo.emis += emisT; mo.days++;
+      slot.forEach((sl, k) => { const a = yy.slots[k]; a.dem += sl.dem; a.imp += sl.imp; a.dis += sl.dis; a.chg += sl.chg; a.price += sl.price; keys.forEach((kk) => { a.out[kk] += sl.out[kk]; }); });
+      this.plants.forEach((p) => { p.ytd += (p.cur || 0) * 24; });
+      // population: people move in and out depending on air quality (CO2 intensity), price and blackouts.
+      // co2Avg = smoothed g CO2 per kWh; below 200 g people arrive, above it they leave
+      s.co2Avg = 0.95 * s.co2Avg + 0.05 * intensity;
+      const air = Math.max(-0.015, Math.min(0.008, 0.008 * (200 - s.co2Avg) / 200));
+      const inRate = 0.005 + Math.max(0, air) + (avgPrice < 80 ? 0.002 : 0);
+      const outRate = 0.005 + 0.0012 + Math.max(0, -air) + (avgPrice > 170 ? 0.003 : 0) + (E_uns > 24 ? 0.09 : 0);
+      const arr = s.pop * inRate / 365, dep = s.pop * outRate / 365;
+      s.pop += arr - dep; yy.arr += arr; yy.dep += dep; s.todayArr = arr; s.todayDep = dep;
+      s.perCap *= 1 + 0.012 / 365;
+      s.history.push(avgPrice); if (s.history.length > 30) s.history.shift();
+    }
+    const outMW = {}; keys.forEach((kk) => { outMW[kk] = out[kk] / 24; });
+    s.today = { T, cloud, w, flow, price: avgPrice, demand, gen: genE / 24, out: outMW, imp: E_imp / 24, exp: E_exp / 24, unserved: E_uns / 24, curt: E_curt / 24, dis: E_dis / 24, chg: E_chg / 24, clean, mult, intensity, net, storm, emisT, slot };
+    if (!preview) {
+      s.day++;
+      if (s.day >= 365) { this.endYear(); return; }
+    }
+    this.pushHud();
+  }
+  bonusMult(c) { return c >= 0.95 ? 1.2 : c >= 0.9 ? 1.15 : c >= 0.8 ? 1.1 : c >= 0.65 ? 1.05 : c >= 0.5 ? 1.0 : 0.95; }
+  startEvent(ev) {
+    const s = this.sim; const len = ev.len[0] + Math.floor(Math.random() * (ev.len[1] - ev.len[0] + 1));
+    s.events.push({ id: ev.id, name: ev.name, left: len, bg: ev.bg });
+    if (s.y) s.y.events.push(ev.name);
+    this.toast(ev.name + ': ' + ev.text, 6000);
+    const pick = (types) => this.plants.filter((p) => types.indexOf(p.type) >= 0 && p.build === 0);
+    if (ev.id === 'storm') pick(['wind']).forEach((p) => { if (Math.random() < 0.35) p.units.forEach((u) => { u.out = Math.max(u.out, 4 + Math.floor(Math.random() * 8)); u.why = 'poškodená víchricou'; }); });
+    if (ev.id === 'hail') pick(['solar']).forEach((p) => { if (Math.random() < 0.4) p.units.forEach((u) => { u.out = Math.max(u.out, 5 + Math.floor(Math.random() * 8)); u.why = 'poškodená krupobitím'; }); });
+    if (ev.id === 'flood') this.plants.forEach((p) => { if (p.build > 0 || p.type === 'hydro') return; if (this.nearestRiver(p.x, p.z).d < 3 && Math.random() < 0.3) p.units.forEach((u) => { u.out = Math.max(u.out, 3 + Math.floor(Math.random() * 5)); u.why = 'odstavená pre povodeň'; }); });
+  }
+  endYear() {
+    const s = this.sim; const y = s.y;
+    s.yearDone = true;
+    const TWh = (v) => (v / 1e6).toFixed(2).replace('.', ',') + ' TWh';
+    const genTot = Object.values(y.gen).reduce((a, b) => a + b, 0);
+    const cleanGen = y.gen.nuclear + y.gen.hydro + y.gen.wind + y.gen.solar;
+    const clean = (cleanGen - Math.min(y.curt, cleanGen) + y.imp * 0.4) / Math.max(1, genTot - y.curt + y.imp);
+    const consumption = y.demand - y.unserved;
+    const intensity = y.emis * 1000 / Math.max(1, consumption);
+    // missions: reward or penalty
+    const missions = this.missionDefs(s.yearIdx).map((ms) => { const r = ms.check(); return { text: ms.text, ok: r.ok, prog: r.prog, money: r.ok ? ms.reward : -ms.penalty }; });
+    let missionMoney = 0; missions.forEach((ms) => { missionMoney += ms.money; }); s.money += missionMoney;
+    const opProfit = y.sales + y.bonus - y.fuel - y.co2cost - y.om - y.impCost - y.loan - y.tax - y.interest;
+    const popCh = s.pop - y.popStart;
+    const impShare = y.imp / Math.max(1, y.demand);
+    const oze = this.ozeShare(y);
+    const sc = (v) => Math.round(Math.max(0, Math.min(100, v)));
+    const ekon = sc(50 + (opProfit / 1e6) / 20);
+    const eko = sc(100 - (intensity - 100) / 3.5);
+    const spol = sc(100 - y.blackoutDays * 12 - impShare * 60);
+    const ludia = sc(50 + (popCh / y.popStart) * 100 * 20 + (250 - intensity) * 0.25);
+    const total = Math.round((ekon + eko + spol + ludia) / 4);
+    const grade = total >= 85 ? 'A' : total >= 70 ? 'B' : total >= 55 ? 'C' : total >= 40 ? 'D' : 'E';
+    const col = (v) => (v >= 70 ? '#2E9A57' : v >= 45 ? '#D9A21B' : '#C0392B');
+    const rec = { year: s.year, total, ekon, eko, spol, ludia, opProfit, intensity, clean, popCh, grade };
+    s.reports = (s.reports || []).concat([rec]);
+    const final = s.yearIdx >= 3;
+    // charts: an average day (6 blocks) and the year by month
+    const stackKeys = ['nuclear', 'hydro', 'wind', 'solar', 'coal', 'gas'];
+    const dayRows = y.slots.map((a, k) => { const n = Math.max(1, y.days); const o = {}; stackKeys.forEach((kk) => { o[kk] = a.out[kk] / n; }); return { label: this.SLOT_LABELS[k], dem: a.dem / n, imp: a.imp / n, dis: a.dis / n, chg: a.chg / n, price: a.price / n, out: o }; });
+    const monRows = y.months.map((mo, i) => { const n = Math.max(1, mo.days) * 24; const o = {}; stackKeys.forEach((kk) => { o[kk] = mo.gen[kk] / n; }); return { label: this.MONTH_SHORT[i], dem: mo.demand / n, imp: mo.imp / n, dis: mo.dis / n, out: o, co2: mo.emis * 1000 / Math.max(1, mo.demand) }; });
+    // quiz (multiple choice, answers from this year's data) + one open question
+    const priceSlots = dayRows.map((r) => r.price); const dearK = priceSlots.indexOf(Math.max(...priceSlots));
+    const qPool = {
+      peak: { q: 'Kedy počas dňa bola tento rok elektrina v priemere najdrahšia?', opts: [this.SLOT_LABELS[1] + ' (ráno)', this.SLOT_LABELS[3] + ' (popoludní)', this.SLOT_LABELS[4] + ' (večer)', this.SLOT_LABELS[0] + ' (v noci)'], correct: [1, 3, 4, 0].indexOf(dearK) >= 0 ? [1, 3, 4, 0].indexOf(dearK) : 2, expl: 'Najdrahšie bolo v bloku ' + this.SLOT_LABELS[dearK] + ' h (' + Math.round(priceSlots[dearK]) + ' €/MWh). Večer ľudia prídu domov, varia, svietia a nabíjajú autá – a slnko už nesvieti.' },
+      solar: { q: 'Kedy vyrábajú solárne panely najviac a kedy najmenej?', opts: ['Najviac v lete, najmenej v zime', 'Rovnako celý rok', 'Najviac na jar, najmenej v lete'], correct: 0, expl: 'V lete je deň dlhší a slnko vyššie – panel vyrobí v júni asi 5× viac ako v decembri. A v noci nevyrobí nič.' },
+      imp: { q: 'Koľko spotreby si tento rok musel doviezť zo zahraničia?', opts: ['menej ako 20 %', '20 – 40 %', '40 – 60 %', 'viac ako 60 %'], correct: impShare < 0.2 ? 0 : impShare < 0.4 ? 1 : impShare < 0.6 ? 2 : 3, expl: 'Doviezol si ' + Math.round(impShare * 100) + ' % spotreby. Dovoz je o 15 % drahší a v priemere špinavší (400 g CO₂/kWh).' },
+      store: { q: 'Čo najviac pomôže pokryť večernú špičku, keď už nesvieti slnko?', opts: ['Ďalší solárny park', 'Batéria alebo prečerpávacia elektráreň', 'Odstaviť jadrovú elektráreň'], correct: 1, expl: 'Úložisko sa nabije cez deň alebo v noci, keď je elektrina lacná, a vybije sa večer, keď je drahá. Ďalší solárny park večer nepomôže.' },
+      co2: { q: 'Čo najviac rozhoduje o tom, či sa ľudia do krajiny prisťahujú?', opts: ['Množstvo CO₂ (hranica 200 g/kWh)', 'Počet postavených elektrární', 'Výška tvojich peňazí'], correct: 0, expl: 'Tento rok si mal priemerne ' + Math.round(intensity) + ' g CO₂/kWh. Pod 200 g/kWh ľudia prichádzajú, nad ňou odchádzajú.' }
+    };
+    const pick = [['peak', 'solar'], ['imp', 'store'], ['co2', 'peak'], ['store', 'imp']][Math.min(3, s.yearIdx)];
+    const quiz = pick.map((k) => qPool[k]);
+    const open = [
+      'Čo by si na budúci rok urobil inak a prečo?',
+      'Ktorá udalosť ti tento rok najviac skomplikovala situáciu? Ako by si sa na ňu pripravil?',
+      'Tvoje CO₂ bolo ' + Math.round(intensity) + ' g/kWh. Skutočná domáca výroba Slovenska mala v roku 2025 približne 110 g/kWh. Prečo je rozdiel?',
+      'Keby si bol naozaj ministrom energetiky, ktoré tri rozhodnutia z hry by si urobil aj v skutočnosti?'
+    ][Math.min(3, s.yearIdx)];
+    const report = {
+      kicker: final ? 'Koniec hry · 4 roky' : 'Vyhodnotenie roka', title: final ? 'Konečné hodnotenie' : 'Rok ' + s.year,
+      text: (y.events.length ? 'Udalosti roka: ' + y.events.join(', ') + '.' : 'Pokojný rok bez väčších udalostí.') + (final ? '\nPriemer za 4 roky: ' + Math.round(s.reports.reduce((a, r) => a + r.total, 0) / s.reports.length) + ' bodov.' : ''),
+      grade, total, gradeBg: col(total), gradeText: grade === 'A' ? 'Výborne – krajina prosperuje a je čistá.' : grade === 'B' ? 'Veľmi dobre.' : grade === 'C' ? 'Dobre, ale je čo zlepšovať.' : 'Krajine sa nedarí – skús iné rozhodnutia.',
+      scores: [
+        { label: 'Ekonomika', score: ekon, note: 'Čistý zisk ' + this.fmtMoney(opProfit) + ' (po daniach, bez investícií)' },
+        { label: 'Ekológia', score: eko, note: 'Emisie ' + Math.round(intensity) + ' g CO₂/kWh · spolu ' + (y.emis / 1e6).toFixed(2).replace('.', ',') + ' Mt CO₂' },
+        { label: 'Spoľahlivosť', score: spol, note: 'Dni s výpadkom: ' + y.blackoutDays + ' · import ' + Math.round(impShare * 100) + ' % spotreby' },
+        { label: 'Spokojnosť ľudí', score: ludia, note: 'Prišlo ' + this.fmtNum(y.arr) + ', odišlo ' + this.fmtNum(y.dep) + ' · populácia ' + (popCh >= 0 ? '+' : '') + this.fmtNum(popCh) }
+      ].map((r) => ({ label: r.label, score: r.score, note: r.note, w: r.score + '%', c: col(r.score) })),
+      missions: missions.map((ms) => ({ text: ms.text, prog: ms.prog, icon: ms.ok ? '✓' : '✗', color: ms.ok ? '#1A7A43' : '#A33A22', money: ms.money ? (ms.money > 0 ? '+' : '') + this.fmtMoney(ms.money) : 'bez odmeny' })),
+      dayRows, monRows, quiz, open,
+      rows: [
+        ['Spotreba', TWh(y.demand)], ['Výroba', TWh(genTot)], ['Obnoviteľné zdroje', Math.round(oze * 100) + ' % spotreby'],
+        ['Jadro', TWh(y.gen.nuclear)], ['Voda', TWh(y.gen.hydro)], ['Slnko', TWh(y.gen.solar)], ['Vietor', TWh(y.gen.wind)], ['Uhlie', TWh(y.gen.coal)], ['Plyn a biomasa', TWh(y.gen.gas)],
+        ['Úložiská vrátili', TWh(y.dis)], ['Export', TWh(y.exp)], ['Import', TWh(y.imp)],
+        ['Priemerná cena', Math.round(y.priceSum / Math.max(1, y.days)) + ' €/MWh'], ['Tržby za elektrinu', this.fmtMoney(y.sales)],
+        ['Bonus za čistú energiu', this.fmtMoney(y.bonus)], ['Odmeny a pokuty z misií', this.fmtMoney(missionMoney)], ['Palivo', this.fmtMoney(y.fuel)], ['Emisné povolenky', this.fmtMoney(y.co2cost)], ['Prevádzka a údržba', this.fmtMoney(y.om)],
+        ['Nákup importu', this.fmtMoney(y.impCost)], ['Dane (24 %)', this.fmtMoney(y.tax)], ['Úroky z úveru', this.fmtMoney(y.interest)], ['Investície do stavieb', this.fmtMoney(y.capex)],
+        ['CO₂ za rok', this.fmtTons(y.emis)], ['Priemer CO₂', Math.round(intensity) + ' g/kWh'], ['Prisťahovaní', '+' + this.fmtNum(y.arr)], ['Odsťahovaní', '−' + this.fmtNum(y.dep)], ['Peniaze na konci roka', this.fmtMoney(s.money)], ['Populácia', this.fmtNum(s.pop)]
+      ].map((r) => ({ k: r[0], v: r[1] })),
+      btn: final ? 'Hrať znova' : 'Pokračovať do roku ' + (s.year + 1), final
+    };
+    this.setState({ running: false, modal: 'year', report, quizPicks: {} });
+    this.pushHud();
+  }
+  // ---------- missions (yearly goals based on real Slovak / EU targets) ----------
+  ozeShare(y) { return (y.gen.hydro + y.gen.wind + y.gen.solar) / Math.max(1, y.demand); }
+  missionDefs(idx) {
+    const s = this.sim; const y = s.y; const pct = (v) => Math.round(v * 100) + ' %';
+    const vreMW = () => this.plants.filter((p) => !p.locked && (p.type === 'solar' || p.type === 'wind')).reduce((a, p) => a + p.mw, 0);
+    const hasStore = () => this.plants.some((p) => p.type === 'battery' || p.type === 'pumped');
+    const intensity = () => y.emis * 1000 / Math.max(1, y.demand - y.unserved);
+    const all = [
+      [
+        { text: 'Postav aspoň 300 MW slnka alebo vetra', reward: 200e6, penalty: 0, check: () => { const v = vreMW(); return { ok: v >= 300, prog: this.fmtNum(v) + ' / 300 MW' }; } },
+        { text: 'Ani jeden deň bez elektriny (výpadok)', reward: 100e6, penalty: 0, check: () => ({ ok: y.blackoutDays === 0, prog: y.blackoutDays + ' dní s výpadkom' }) }
+      ],
+      [
+        { text: 'Aspoň 15 % elektriny z obnoviteľných zdrojov', reward: 300e6, penalty: 0, check: () => { const v = this.ozeShare(y); return { ok: v >= 0.15, prog: pct(v) + ' / 15 %' }; } },
+        { text: 'Postav úložisko energie (batériu alebo prečerpávaciu VE)', reward: 150e6, penalty: 0, check: () => ({ ok: hasStore(), prog: hasStore() ? 'postavené' : 'zatiaľ nie' }) }
+      ],
+      [
+        { text: 'Priemerné CO₂ pod 220 g/kWh', reward: 300e6, penalty: 0, check: () => { const v = intensity(); return { ok: y.days > 0 && v < 220, prog: Math.round(v) + ' g/kWh' }; } },
+        { text: 'Dovážaj najviac 50 % spotreby', reward: 300e6, penalty: 0, check: () => { const v = y.imp / Math.max(1, y.demand); return { ok: y.days > 0 && v <= 0.5, prog: pct(v) + ' / 50 %' }; } }
+      ],
+      [
+        { text: 'Cieľ Slovenska pre rok 2030: 25 % elektriny z obnoviteľných zdrojov', reward: 500e6, penalty: 300e6, check: () => { const v = this.ozeShare(y); return { ok: v >= 0.25, prog: pct(v) + ' / 25 %' }; } },
+        { text: 'Priemerné CO₂ pod 180 g/kWh', reward: 400e6, penalty: 0, check: () => { const v = intensity(); return { ok: y.days > 0 && v < 180, prog: Math.round(v) + ' g/kWh' }; } }
+      ]
+    ];
+    return all[Math.min(3, idx)];
+  }
+  onModalAction() {
+    const st = this.state;
+    if (st.modal === 'intro') { if (st.introStep < this.introSteps.length - 1) this.setState({ introStep: st.introStep + 1 }); else this.setState({ modal: null, running: true, introStep: 0 }); return; }
+    if (st.modal === 'year') {
+      if (st.report && st.report.final) { this.resetGame(); return; }
+      const s = this.sim; s.year++; s.yearIdx++; s.day = 0; s.yearDone = false; this.startYear();
+      this.setState({ modal: null, running: true, report: null }); this.pushHud();
+    }
+  }
+  resetGame() {
+    this.plants.slice().forEach((p) => this.removePlant(p));
+    this.plants.forEach((p) => p.units.forEach((u) => { u.out = 0; u.why = ''; }));
+    this.selPlant = null; this.setState({ sel: null });
+    this.newGame(); this.setState({ modal: null, running: true });
+  }
+  removePlant(pl) {
+    this.three.scene.remove(pl.root); pl.sprites.forEach((s) => this.three.scene.remove(s.sp));
+    if (pl.label) { this.three.scene.remove(pl.label); const li = this.labels.indexOf(pl.label); if (li >= 0) this.labels.splice(li, 1); }
+    const i = this.plants.indexOf(pl); if (i >= 0) this.plants.splice(i, 1);
+  }
+
+  // ---------- HUD ----------
+  fmtNum(n) { const v = Math.round(n); return (v < 0 ? '−' : '') + Math.abs(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  fmtTons(t) { if (t >= 1e6) return (t / 1e6).toFixed(2).replace('.', ',') + ' mil. t'; if (t >= 1e3) return Math.round(t / 1e3) + ' tis. t'; return this.fmtNum(t) + ' t'; }
+  fmtMoney(v) { const a = Math.abs(v), sg = v < 0 ? '−' : ''; if (a >= 1e9) return sg + (a / 1e9).toFixed(2).replace('.', ',') + ' mld. €'; if (a >= 1e6) return sg + Math.round(a / 1e6) + ' mil. €'; return sg + this.fmtNum(a) + ' €'; }
+  // stacked column for the small charts: sources from the bottom, then storage, then import; demand = a marker line
+  stackCols(rows, H) {
+    const order = ['nuclear', 'hydro', 'wind', 'solar', 'coal', 'gas'];
+    const tot = (r) => order.reduce((a, k) => a + r.out[k], 0) + (r.dis || 0) + (r.imp || 0);
+    const max = Math.max(1, ...rows.map((r) => Math.max(tot(r), r.dem)));
+    return rows.map((r) => {
+      const segs = order.map((k) => ({ c: this.COLORS[k], v: r.out[k] })).concat([{ c: this.COLORS.store, v: r.dis || 0 }, { c: this.COLORS.imp, v: r.imp || 0 }])
+        .filter((x) => x.v > max * 0.004).map((x) => ({ c: x.c, h: (x.v / max * H).toFixed(1) + 'px' }));
+      return { label: r.label, segs, demB: (r.dem / max * H).toFixed(1) + 'px', top: r.top !== undefined ? r.top : r.price !== undefined ? Math.round(r.price) + ' €' : '' };
+    });
+  }
+  pushHud() {
+    const s = this.sim; const t = s.today; if (!t) return;
+    const { m, dd } = this.dateOf(Math.min(364, s.day));
+    const supply = t.gen + t.imp + (t.dis || 0); const mixKeys = ['nuclear', 'hydro', 'solar', 'wind', 'coal', 'gas'];
+    const mix = mixKeys.map((k) => ({ k, mw: t.out[k] })).concat([{ k: 'store', mw: t.dis || 0 }, { k: 'imp', mw: t.imp }]).filter((x) => x.mw > 0.5 || x.k === 'solar' || x.k === 'wind')
+      .map((x) => ({ w: (x.mw / Math.max(1, supply) * 100).toFixed(1) + '%', c: this.COLORS[x.k], label: this.LABELS[x.k], mw: this.fmtNum(x.mw) }));
+    const avg = s.history.length ? s.history.reduce((a, b) => a + b, 0) / s.history.length : t.price;
+    const windMs = (4.3 * t.w).toFixed(1).replace('.', ',');
+    const slotRows = t.slot.map((sl, k) => ({ label: this.SLOT_LABELS[k], dem: sl.dem, imp: sl.imp, dis: sl.dis, price: sl.price, out: sl.out }));
+    const missions = s.y ? this.missionDefs(s.yearIdx).map((ms) => { const r = ms.check(); return { icon: r.ok ? '✓' : '○', color: r.ok ? '#1A7A43' : '#6B7A83', text: ms.text, prog: r.prog }; }) : [];
+    const hud = {
+      money: s.money, net: t.net, pop: s.pop, popDelta: s.pop - (s.y ? s.y.popStart : s.pop), clean: s.cleanAvg, mult: t.mult,
+      date: dd + '. ' + this.MONTHS[m] + ' ' + s.year, yearText: 'Rok ' + (s.yearIdx + 1) + ' zo 4 · deň ' + Math.min(365, s.day + 1) + '/365',
+      progress: (Math.min(365, s.day) / 365 * 100).toFixed(1) + '%',
+      prod: t.gen, demand: t.demand, price: t.price, trend: t.price - avg, mix, slots: this.stackCols(slotRows, 40), missions,
+      temp: Math.round(t.T) + ' °C', cloud: Math.round(t.cloud * 100) + ' %', wind: t.storm ? 'víchrica' : windMs + ' m/s', flow: Math.round(t.flow * 100) + ' %',
+      co2: Math.round(t.intensity), unserved: t.unserved,
+      co2Day: this.fmtNum(t.emisT) + ' t', co2Year: s.y ? this.fmtTons(s.y.emis) : '0 t',
+      arrYear: s.y ? this.fmtNum(s.y.arr) : '0', depYear: s.y ? this.fmtNum(s.y.dep) : '0',
+      perCap: (s.perCap).toFixed(2).replace('.', ','),
+      events: s.events.map((e) => ({ name: e.name, left: 'ešte ' + e.left + ' d', bg: e.bg }))
+    };
+    this.setState({ hud, tick: (this.state.tick || 0) + 1 });
+    if (this.selPlant) this.refreshInfo();
+  }
+  refreshInfo() {
+    const p = this.selPlant; if (!p) return;
+    const it = this.itemBy[p.type]; const isStore = p.type === 'battery' || p.type === 'pumped';
+    let status = 'V prevádzke', color = '#1A7A43';
+    if (p.build > 0) { status = 'Vo výstavbe – zostáva ' + p.build + ' dní'; color = '#9A6200'; }
+    else { const off = p.units.filter((u) => u.out > 0); if (off.length === p.units.length) { status = 'Odstavená: ' + off[0].why + ' (' + off[0].out + ' d)'; color = '#A33A22'; } else if (off.length) { status = off.length + ' z ' + p.units.length + ' blokov odstavených: ' + off[0].why; color = '#9A6200'; } else if ((p.type === 'coal') && (p.cur || 0) < 1) { status = 'Mimo prevádzky – elektrina je lacnejšia ako výroba z uhlia'; color = '#4F5F68'; } else if (isStore && !(p.disToday > 0)) { status = 'Čaká – dnes sa neoplatilo nabíjať'; color = '#4F5F68'; } }
+    const days = Math.max(1, this.sim.y ? this.sim.y.days : 1);
+    const cfY = p.ytd / Math.max(1, p.mw * 24 * days);
+    let rows;
+    if (isStore) {
+      const E = p.mw * it.hours;
+      rows = [
+        { k: 'Výkon / kapacita', v: this.fmtNum(p.mw) + ' MW / ' + this.fmtNum(E) + ' MWh' },
+        { k: 'Nabitie', v: Math.round((p.soc || 0) / E * 100) + ' %' },
+        { k: 'Dnes nabila / vybila', v: this.fmtNum(p.chgToday || 0) + ' / ' + this.fmtNum(p.disToday || 0) + ' MWh' },
+        { k: 'Účinnosť cyklu', v: Math.round(it.eta * 100) + ' %' },
+        { k: 'Vrátila tento rok', v: (p.ytd / 1000).toFixed(0) + ' GWh' }
+      ];
+    } else {
+      rows = [
+        { k: 'Inštalovaný výkon', v: this.fmtNum(p.mw) + ' MW' + (p.units.length > 1 ? ' (' + p.units.length + ' bloky)' : '') },
+        { k: 'Výkon dnes (priemer)', v: this.fmtNum(p.cur || 0) + ' MW' },
+        { k: 'Výroba tento rok', v: (p.ytd / 1000).toFixed(0) + ' GWh' },
+        { k: 'Využitie tento rok', v: Math.round(cfY * 100) + ' %' },
+        { k: 'Emisie (životný cyklus)', v: it.co2 + ' g CO₂/kWh' }
+      ];
+    }
+    if (p.type === 'wind' || p.type === 'solar') rows.push({ k: 'Kvalita miesta', v: '×' + p.loc.toFixed(2).replace('.', ',') });
+    if (p.locked) rows.push({ k: 'Skutočná elektráreň', v: 'nedá sa presunúť' });
+    this.setState({ sel: { name: p.name, status, color, rows } });
+  }
+  toast(text, ms) { clearTimeout(this._toastTimer); this.setState({ toast: text }); this._toastTimer = setTimeout(() => { if (this.alive) this.setState({ toast: null }); }, ms || 3200); }
+
+  // ---------- interaction ----------
+  pick(clientX, clientY) {
+    const { camera, ray } = this.three; const rect = this.canvas.getBoundingClientRect();
+    const nx = ((clientX - rect.left) / rect.width) * 2 - 1, ny = -((clientY - rect.top) / rect.height) * 2 + 1;
+    if (nx < -1 || nx > 1 || ny < -1 || ny > 1) return null;
+    ray.setFromCamera({ x: nx, y: ny }, camera);
+    return { nx, ny };
+  }
+  ground(clientX, clientY) {
+    if (!this.pick(clientX, clientY)) return null;
+    const o = this.three.ray.ray.origin, d = this.three.ray.ray.direction;
+    let t = 0;
+    for (let i = 0; i < 6000; i++) {
+      const step = Math.max(0.12, t * 0.0025); t += step; if (t > 3500) return null;
+      if (o.y + d.y * t <= this.sampleH(o.x + d.x * t, o.z + d.z * t)) {
+        let a = t - step, b = t;
+        for (let k = 0; k < 10; k++) { const mm = (a + b) / 2; if (o.y + d.y * mm <= this.sampleH(o.x + d.x * mm, o.z + d.z * mm)) b = mm; else a = mm; }
+        return { x: o.x + d.x * b, z: o.z + d.z * b };
+      }
+    }
+    return null;
+  }
+  local(clientX, clientY) {
+    const el = this.rootEl || this.canvas; const r = el.getBoundingClientRect();
+    const sx = (el.offsetWidth || r.width) / (r.width || 1), sy = (el.offsetHeight || r.height) / (r.height || 1);
+    return { x: (clientX - r.left) * sx, y: (clientY - r.top) * sy };
+  }
+  overDock(clientX, clientY) { if (!this.dockEl) return false; const r = this.dockEl.getBoundingClientRect(); return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom; }
+
+  startNew(type, e) {
+    if (!this.three || this.state.modal) return; if (e && e.preventDefault) e.preventDefault();
+    this.drag = { type, mode: 'new' }; this.three.controls.enabled = false;
+    this.onPointerMove(e);
+  }
+  onCanvasDown(e) {
+    if (!this.three || e.button !== 0 || this.drag || this.state.modal) return;
+    if (!this.pick(e.clientX, e.clientY)) return;
+    const hits = this.three.ray.intersectObjects(this.plants.map((p) => p.root), true);
+    if (!hits.length) return;
+    const o = hits[0].object; const plant = this.plants.find((p) => { let q = o; while (q) { if (q === p.root) return true; q = q.parent; } return false; });
+    if (!plant) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    this.drag = { type: plant.type, mode: 'press', plant, sx: e.clientX, sy: e.clientY };
+    this.three.controls.enabled = false;
+  }
+  beginMove(dg) {
+    const plant = dg.plant; dg.mode = 'move';
+    plant.root.visible = false; plant.sprites.forEach((s) => { s.sp.visible = false; });
+    this.setState({ moving: true });
+  }
+  onPointerMove(e) {
+    const dg = this.drag; if (!dg || !this.three || !e) return;
+    if (dg.mode === 'press') {
+      if (Math.hypot(e.clientX - dg.sx, e.clientY - dg.sy) < 6) return;
+      if (dg.plant.locked) { const L0 = this.local(e.clientX, e.clientY); this.setState({ tip: { x: L0.x, y: L0.y - 20, title: dg.plant.name, sub: 'Skutočnú elektráreň nemožno presunúť', bg: 'rgba(30,43,51,0.94)' } }); return; }
+      this.beginMove(dg);
+    }
+    const g = this.ghost(dg.type); const L = this.local(e.clientX, e.clientY);
+    if (this.overDock(e.clientX, e.clientY)) {
+      g.visible = false;
+      const it = this.itemBy[dg.type];
+      const back = dg.mode === 'move' ? (dg.plant.build > 0 ? it.price * 0.8 : it.price * it.refund) : 0;
+      this.setState({ tip: dg.mode === 'move' ? { x: L.x, y: L.y - 14, title: 'Zbúrať stavbu', sub: 'Vrátime ' + this.fmtMoney(back), bg: '#A33A22' } : null });
+      dg.ev = null; return;
+    }
+    const p = this.ground(e.clientX, e.clientY);
+    if (!p) { g.visible = false; dg.ev = null; this.setState({ tip: null }); return; }
+    const ev = this.evaluate(dg.type, p.x, p.z, dg.mode === 'move' ? dg.plant : null); dg.ev = ev;
+    const gx = ev.ok ? ev.x : p.x, gz = ev.ok ? ev.z : p.z;
+    this.placeRoot(g, dg.type, gx, gz, ev.tx, ev.tz); g.visible = true;
+    this.ghostMat.color.copy(this.col(ev.ok ? '#3BD16F' : '#E5533D')); this.ghostMat.emissive.copy(this.col(ev.ok ? '#1A7A43' : '#8E2A17'));
+    const name = this.itemBy[dg.type].name;
+    this.setState({ tip: { x: L.x, y: L.y - 26, title: ev.ok ? name : 'Tu sa nedá stavať', sub: ev.ok ? ev.sub : ev.why, bg: ev.ok ? 'rgba(20,90,50,0.94)' : 'rgba(163,58,34,0.94)' } });
+  }
+  onPointerUp(e) {
+    const dg = this.drag; if (!dg || !this.three) return;
+    this.drag = null; this.three.controls.enabled = true;
+    if (dg.mode === 'press') { this.selPlant = dg.plant; this.setState({ tip: null }); this.refreshInfo(); return; }
+    if (this.ghosts[dg.type]) this.ghosts[dg.type].visible = false;
+    const it = this.itemBy[dg.type];
+    const dock = e && this.overDock(e.clientX, e.clientY);
+    const s = this.sim;
+    if (dg.mode === 'move') {
+      const pl = dg.plant;
+      if (dock) {
+        const back = pl.build > 0 ? it.price * 0.8 : it.price * it.refund;
+        this.removePlant(pl); s.money += back; if (s.y) s.y.refunds += back;
+        if (this.selPlant === pl) { this.selPlant = null; this.setState({ sel: null }); }
+        this.setState({ tip: null, moving: false });
+        this.toast('Zbúrané · vrátených ' + this.fmtMoney(back)); this.pushHud(); return;
+      }
+      if (dg.ev && dg.ev.ok) {
+        s.money -= dg.ev.cost; if (s.y) s.y.capex += dg.ev.cost;
+        pl.x = dg.ev.x; pl.z = dg.ev.z; pl.tx = dg.ev.tx; pl.tz = dg.ev.tz; this.placeRoot(pl.root, pl.type, pl.x, pl.z, dg.ev.tx, dg.ev.tz);
+        this.updateLoc(pl);
+        if (pl.build === 0 && dg.ev.cost > 0) pl.units.forEach((u) => { u.out = Math.max(u.out, 14); u.why = 'presun'; });
+        this.makeSmoke(pl); this.toast(pl.name + ' presunutá' + (dg.ev.cost ? ' za ' + this.fmtMoney(dg.ev.cost) : ''));
+      }
+      pl.root.visible = true; pl.sprites.forEach((x) => { x.sp.visible = true; });
+      this.setState({ tip: null, moving: false }); this.pushHud(); return;
+    }
+    this.setState({ tip: null });
+    if (dock || !dg.ev) return;
+    if (!dg.ev.ok) { this.toast(dg.ev.why); return; }
+    s.money -= it.price; if (s.y) s.y.capex += it.price;
+    this.addPlant(dg.type, dg.ev.x, dg.ev.z, { tx: dg.ev.tx, tz: dg.ev.tz, build: it.build });
+    this.toast('Výstavba začala: ' + it.name + (dg.ev.river ? ' na rieke ' + dg.ev.river : '') + ' · hotová o ' + it.build + ' dní');
+    this.pushHud();
+  }
+
+  // ---------- frame ----------
+  frame() {
+    const th = this.three; const { camera, controls, sun, renderer, scene } = th;
+    const dt = Math.min(0.05, th.clock.getDelta());
+    // advance the simulation: one year = yearSeconds real seconds
+    if (this.sim && this.state.running && !this.state.modal && !this.sim.yearDone && !this.drag) {
+      const dayLen = (this.props.yearSeconds ?? 270) / 365;
+      this.sim.acc += dt * (this.state.speed || 1);
+      let n = 0; while (this.sim.acc >= dayLen && n < 6 && !this.sim.yearDone) { this.sim.acc -= dayLen; this.stepDay(false); n++; }
+    }
+    controls.update();
+    const tg = controls.target; tg.x = Math.max(-235, Math.min(235, tg.x)); tg.z = Math.max(-125, Math.min(125, tg.z));
+    const dist = camera.position.distanceTo(tg);
+    scene.fog.near = dist * 0.9 + 30; scene.fog.far = dist * 2.8 + 220;
+    const sh = Math.min(140, Math.max(25, dist * 0.6)); const scam = sun.shadow.camera;
+    if (Math.abs(scam.right - sh) > 1) { scam.left = -sh; scam.right = sh; scam.top = sh; scam.bottom = -sh; scam.updateProjectionMatrix(); }
+    sun.position.set(tg.x - 70, tg.y + 120, tg.z + 45); sun.target.position.copy(tg); sun.target.updateMatrixWorld();
+    // rotors spin with the current wind output
+    const running = this.state.running && !this.state.modal;
+    for (const p of this.plants) {
+      if (p.type !== 'wind') continue;
+      const cf = p.mw ? (p.cur || 0) / p.mw : 0; const sp = running ? 0.3 + 3.5 * cf : 0.25 * cf;
+      p.root.userData.rotors.forEach((r) => { r.rotation.x += dt * sp; });
+    }
+    if (this.ghosts.wind) this.ghosts.wind.userData.rotors.forEach((r) => { r.rotation.x += dt * 1.6; });
+    const dmy = this._dmy || (this._dmy = new th.T.Object3D());
+    const cm = this.carMesh; const showCars = dist < 260; cm.visible = showCars;
+    if (showCars && this.roads.length) {
+      for (let i = 0; i < this.cars.length; i++) {
+        const c = this.cars[i]; const rd = this.roads[c.r];
+        c.s += c.v * dt * c.dir; if (c.s > rd.total) c.s -= rd.total; if (c.s < 0) c.s += rd.total;
+        const f = c.s / rd.step; const k = Math.min(rd.pts.length - 2, f | 0); const a = rd.pts[k], b = rd.pts[k + 1]; const u = f - k;
+        let tx = b.x - a.x, tz = b.z - a.z; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l;
+        const off = (rd.m ? 0.1 : 0.07) * c.dir;
+        dmy.position.set(a.x + (b.x - a.x) * u - tz * off, Math.max(a.y, b.y) + 0.27, a.z + (b.z - a.z) * u + tx * off);
+        dmy.rotation.set(0, Math.atan2(-tz, tx), 0); dmy.updateMatrix(); cm.setMatrixAt(i, dmy.matrix);
+      }
+      cm.instanceMatrix.needsUpdate = true;
+    }
+    // steam/smoke only while a plant is producing
+    for (const p of this.plants) {
+      const on = p.build === 0 && (p.cur || 0) > 1;
+      for (const s of p.sprites) {
+        s.age += dt; if (s.age > s.life) s.age -= s.life;
+        const k = s.age / s.life;
+        s.sp.position.set(s.base.x + k * 1.6, s.base.y + k * (s.smoke ? 2.6 : 2.0), s.base.z - k * 0.6);
+        const scl = s.size * (0.5 + k * 1.6); s.sp.scale.set(scl, scl, 1);
+        s.sp.material.opacity = on ? (k < 0.12 ? k / 0.12 : 1 - (k - 0.12) / 0.88) * (s.smoke ? 0.55 : 0.8) : 0;
+      }
+    }
+    const hpx = renderer.domElement.clientHeight || 844; const tanF = Math.tan((camera.fov * Math.PI / 180) / 2) * 2;
+    for (const sp of this.labels) {
+      const v = dist < sp.userData.vis; sp.visible = v;
+      if (v) { const s2 = sp.userData.px * tanF / hpx; sp.scale.set(s2 * sp.userData.aspect, s2, 1); }
+    }
+    renderer.render(scene, camera);
+  }
+
+  renderVals() {
+    const st = this.state; const h = st.hud; const tip = st.tip; const layout = this.props.layout ?? 'auto';
+    const money = this.sim ? this.sim.money : 0;
+    const rep = st.report; const modal = st.modal;
+    const intro = modal === 'intro'; const step = this.introSteps[st.introStep || 0];
+    const sel = st.sel;
+    const mult = h ? h.mult : 1;
+    return {
+      setCanvas: this._setCanvas, setDock: this._setDock, setRoot: this._setRoot,
+      rootClass: layout === 'portrait' ? 'nv-root' : 'nv-root nv-auto',
+      rootH: this.props.h ?? '100vh',
+      zoomIn: this._zoomIn, zoomOut: this._zoomOut, viewAll: this._viewAll,
+      toggleLegend: this._toggleLegend, legendOpen: st.legendOpen,
+      loading: st.loading, loadText: st.loadText,
+      running: !!st.running, paused: !st.running, playLabel: st.running ? 'Pozastaviť' : 'Spustiť', togglePlay: this._togglePlay,
+      speeds: this.speedDefs.map((sp) => ({ label: sp.v + '×', set: sp.set, on: st.speed === sp.v, bg: st.speed === sp.v ? '#1E2B33' : 'transparent', fg: st.speed === sp.v ? '#FFFFFF' : '#33444D' })),
+      moneyText: this.fmtMoney(money), moneyLabel: money < 0 ? 'Úver' : 'Peniaze', moneyLabelColor: money < 0 ? '#A33A22' : '#4F5F68',
+      profitText: h ? (h.net >= 0 ? '+' : '') + this.fmtMoney(h.net) + '/deň' : '',
+      cleanText: h ? Math.round(h.clean * 100) + ' %' : '–',
+      bonusText: '×' + mult.toFixed(2).replace('.', ','), bonusBg: mult >= 1.1 ? '#1A7A43' : mult >= 1 ? '#6B7A83' : '#A33A22',
+      popText: h ? (h.pop / 1e6).toFixed(3).replace('.', ',') + ' mil.' : '–',
+      popDelta: h ? (h.popDelta >= 0 ? '+' : '') + this.fmtNum(h.popDelta) + ' tento rok' : '',
+      dateText: h ? h.date : '', yearText: h ? h.yearText : '', progress: h ? h.progress : '0%',
+      prodText: h ? this.fmtNum(h.prod) : '–', demandText: h ? this.fmtNum(h.demand) : '–',
+      balanceColor: h && h.prod >= h.demand ? '#1A7A43' : '#A33A22',
+      priceText: h ? 'Cena ' + Math.round(h.price) : '', trendText: h ? (h.trend > 3 ? '▲' : h.trend < -3 ? '▼' : '•') : '', trendColor: h && h.trend > 3 ? '#A33A22' : '#1A7A43',
+      mix: h ? h.mix : [],
+      tempText: h ? h.temp : '', cloudText: h ? h.cloud : '', windText: h ? h.wind : '', flowText: h ? h.flow : '', co2Text: h ? String(h.co2) : '', co2DayText: h ? h.co2Day : '', co2YearText: h ? h.co2Year : '', co2Color: h && h.co2 > 200 ? '#A33A22' : h && h.co2 > 120 ? '#9A6200' : '#1A7A43', arrText: h ? h.arrYear : '0', depText: h ? h.depYear : '0',
+      events: h ? h.events : [],
+      slots: h ? h.slots : [], missions: h ? h.missions : [],
+      hasReport: !!rep && !intro, repMissions: rep && !intro ? rep.missions : [],
+      dayChart: rep && !intro ? this.stackCols(rep.dayRows, 90) : [],
+      monChart: rep && !intro ? this.stackCols(rep.monRows.map((r) => Object.assign({}, r, { top: String(Math.round(r.co2)) })), 90) : [],
+      chartLegend: ['nuclear', 'hydro', 'wind', 'solar', 'coal', 'gas', 'store', 'imp'].map((k) => ({ c: this.COLORS[k], label: this.LABELS[k] })),
+      quiz: rep && !intro ? rep.quiz.map((qz, qi) => {
+        const pk = (st.quizPicks || {})[qi]; const answered = pk !== undefined; const right = pk === qz.correct;
+        return { q: qz.q, answered, expl: (right ? 'Správne! ' : 'Nie celkom. ') + qz.expl, explColor: right ? '#1A7A43' : '#A33A22',
+          opts: qz.opts.map((label, oi) => ({ label, pick: () => { if (answered) return; const np = Object.assign({}, st.quizPicks || {}); np[qi] = oi; this.setState({ quizPicks: np }); },
+            bg: answered && oi === qz.correct ? '#E3F3E8' : answered && oi === pk ? '#FBE4DC' : '#FFFFFF', bd: answered && oi === qz.correct ? '#1A7A43' : answered && oi === pk ? '#A33A22' : '#DCE5E9' })) };
+      }) : [],
+      openQ: rep && !intro ? rep.open : '',
+      showToast: !!st.toast, toastText: st.toast || '',
+      showTip: !!tip, tipLeft: (tip ? tip.x : 0) + 'px', tipTop: (tip ? tip.y : 0) + 'px', tipTitle: tip ? tip.title : '', tipSub: tip ? tip.sub : '', tipBg: tip ? tip.bg : '#1E2B33',
+      moving: st.moving, dropText: 'Pusti sem a stavba sa zbúra',
+      showInfo: !!sel, showHint: !sel, infoName: sel ? sel.name : '', infoStatus: sel ? sel.status : '', infoStatusColor: sel ? sel.color : '#1A7A43', infoRows: sel ? sel.rows : [], closeInfo: this._closeInfo,
+      showModal: !!modal && !st.loading,
+      modalKicker: intro ? step.kicker : rep ? rep.kicker : '',
+      modalTitle: intro ? step.title : rep ? rep.title : '',
+      modalText: intro ? step.text : rep ? rep.text : '',
+      isIntro: intro, bullets: intro ? step.bullets : [],
+      introDots: this.introSteps.map((x, i) => ({ w: i === st.introStep ? '26px' : '10px', c: i <= st.introStep ? '#1A7A43' : '#D5DFE3' })),
+      showBack: intro && st.introStep > 0, showSkip: intro && st.introStep < this.introSteps.length - 1,
+      introBack: this._introBack, introSkip: this._introSkip,
+      hasGrade: !!rep && !intro, grade: rep ? rep.grade : '', totalScore: rep ? rep.total : 0, gradeBg: rep ? rep.gradeBg : '#1A7A43', gradeText: rep ? rep.gradeText : '',
+      scores: rep && !intro ? rep.scores : [], hasRows: !!rep && !intro, rows: rep && !intro ? rep.rows : [],
+      modalBtn: intro ? (st.introStep < this.introSteps.length - 1 ? 'Ďalej' : 'Začať rok 2027') : rep ? rep.btn : 'OK', modalAction: this._modalAction,
+      items: this.items.map((it) => ({
+        name: it.name, start: it.start, tint: it.tint, rule: it.rule,
+        mwText: this.fmtNum(it.mw) + ' MW' + (it.hours ? ' / ' + this.fmtNum(it.mw * it.hours) + ' MWh' : ''), buildText: it.build >= 365 ? (it.build / 365).toFixed(1).replace('.', ',').replace(',0', '') + ' r.' : Math.round(it.build / 30) + ' mes.',
+        priceText: this.fmtMoney(it.price), aria: it.name + ', ' + this.fmtMoney(it.price) + ', ' + it.mw + ' MW. ' + it.rule + '. Potiahni na mapu.',
+        opacity: money - it.price >= -this.CREDIT ? 1 : 0.45,
+        isWind: it.type === 'wind', isHydro: it.type === 'hydro', isCoal: it.type === 'coal', isNuclear: it.type === 'nuclear', isSolar: it.type === 'solar', isBattery: it.type === 'battery', isPumped: it.type === 'pumped'
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
