@@ -6,7 +6,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import border from '../data/sk-border.json';
 import rivers from '../data/rivers.json';
 import lakes from '../data/lakes.json';
-import { HOME, BOUNDS, BOUNDS_WIDE, isPortrait, minZoomFor } from './camera';
+import { HOME, BOUNDS, minZoomFor } from './camera';
 
 maplibregl.setWorkerUrl(workerUrl);
 
@@ -38,7 +38,13 @@ export async function createMap(container: HTMLElement): Promise<MLMap> {
     container, style,
     center: HOME.center, zoom: HOME.zoom, pitch: HOME.pitch, bearing: HOME.bearing,
     minZoom: minZoomFor(), maxZoom: 16, maxPitch: 75,
-    maxBounds: isPortrait() ? BOUNDS_WIDE : BOUNDS,
+    // keep the camera centre over Slovakia (like maxBounds), but let a pitched view see past the border –
+    // the default maxBounds constrains the whole viewport, which fights the 50° pitch and narrow phones
+    transformConstrain: (ll: maplibregl.LngLat, zoom: number) => {
+      const [[w, s], [e, n]] = BOUNDS as [[number, number], [number, number]];
+      const minZ = minZoomFor();
+      return { center: new maplibregl.LngLat(Math.min(e, Math.max(w, ll.lng)), Math.min(n, Math.max(s, ll.lat))), zoom: Math.min(16, Math.max(minZ, zoom)) };
+    },
     attributionControl: false,
     pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     canvasContextAttributes: { antialias: true },

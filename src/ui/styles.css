@@ -1,2 +1,46 @@
-html,body,#app{margin:0;height:100%;}
+/* ported from the <helmet><style> block of reference/Main.dc.html */
+html,body,#app{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
 body{background:#A9CBE3}
+a{color:#1A7A43}a:hover{color:#125C31}
+.nv-root{position:relative;width:100%;height:100%;overflow:hidden;background:#A9CBE3;font-family:'Nunito',system-ui,sans-serif;color:#1E2B33;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.nv-map{position:absolute;inset:0}
+.nv-map .maplibregl-canvas{outline:none}
+.nv-hud{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;pointer-events:none;z-index:4;padding-top:env(safe-area-inset-top)}
+.nv-hud button{pointer-events:auto}
+.nv-glass{background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;box-shadow:0 4px 14px rgba(20,40,60,0.14)}
+.nv-tools{position:absolute;right:10px;bottom:232px;display:flex;flex-direction:column;gap:8px;z-index:4}
+.nv-legend{position:absolute;right:62px;bottom:232px;width:220px;z-index:5}
+.nv-hint{position:absolute;left:10px;bottom:232px;z-index:3}
+.nv-info{position:absolute;left:10px;bottom:232px;width:232px;z-index:5}
+.nv-dock{position:absolute;left:0;right:0;bottom:0;box-sizing:border-box;border-radius:24px 24px 0 0;padding:10px 10px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;z-index:6}
+.nv-cards{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.nv-cards > *{flex:0 0 116px}
+.nv-card{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.nv-cardtxt{display:flex;flex-direction:column;align-items:center;gap:1px}
+.nv-pic{width:100%;height:44px}
+.nv-modal{position:absolute;inset:0;background:rgba(18,32,44,0.55);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;z-index:20}
+.nv-modalcard{width:100%;max-width:540px;max-height:100%;overflow:auto;box-sizing:border-box;background:#FFFFFF;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,0.3)}
+.nv-toolbtn{width:44px;height:44px;border-radius:14px;border:none;background:rgba(255,255,255,0.92);color:#1E2B33;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(20,40,60,0.14);cursor:pointer}
+.nv-tip{position:absolute;transform:translate(-50%,-100%);color:#FFFFFF;border-radius:12px;padding:7px 11px;display:flex;flex-direction:column;gap:1px;white-space:nowrap;box-shadow:0 6px 18px rgba(20,40,60,0.25);pointer-events:none;z-index:8;max-width:calc(100vw - 24px)}
+.nv-tip span:last-child{white-space:normal}
+/* the map attribution sits above the dock on phones */
+.nv-root .maplibregl-ctrl-bottom-left{bottom:212px;z-index:3}
+@media (orientation: landscape) and (min-width: 700px){
+.nv-auto .nv-hud{right:auto;width:min(560px, calc(100% - 336px))}
+.nv-auto .nv-dock{left:auto;right:10px;top:10px;bottom:10px;width:292px;border-radius:22px;overflow:auto;padding-bottom:16px}
+.nv-auto .nv-cards{flex-direction:column;overflow:visible}
+.nv-auto .nv-cards > *{flex:none}
+.nv-auto .nv-card{flex-direction:row;text-align:left;gap:10px;padding:8px !important}
+.nv-auto .nv-cardtxt{align-items:flex-start}
+.nv-auto .nv-pic{width:74px;height:62px;flex:none}
+.nv-auto .nv-tools{right:314px;bottom:10px}
+.nv-auto .nv-legend{right:366px;bottom:10px}
+.nv-auto .nv-hint{bottom:10px}
+.nv-auto .nv-info{bottom:10px}
+.nv-root.nv-auto .maplibregl-ctrl-bottom-left{bottom:44px}
+.nv-auto .nv-hint{left:10px}
+}
+/* small phones: slightly denser HUD */
+@media (max-width: 420px){
+.nv-hud{gap:5px}
+}
