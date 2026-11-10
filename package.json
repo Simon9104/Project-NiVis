@@ -11,7 +11,8 @@
     "test:e2e": "playwright test --trace off",
     "fetch-osm": "NODE_USE_ENV_PROXY=1 tsx scripts/fetch-osm.ts",
     "build-dem": "NODE_USE_ENV_PROXY=1 tsx scripts/build-dem.ts",
-    "build-style": "NODE_USE_ENV_PROXY=1 tsx scripts/build-style.ts"
+    "build-style": "NODE_USE_ENV_PROXY=1 tsx scripts/build-style.ts",
+    "screenshots": "node scripts/screenshots.cjs screenshots"
   },
   "dependencies": {
     "@turf/turf": "^7.4.0",

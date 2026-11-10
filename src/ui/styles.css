@@ -49,3 +49,10 @@ a{color:#1A7A43}a:hover{color:#125C31}
 .nv-tools{gap:6px}
 .nv-toolbtn{width:40px;height:40px;border-radius:12px}
 }
+/* the info card sits above the map attribution (i) button instead of covering it */
+.nv-root .nv-info{bottom:248px}
+@media (orientation: landscape) and (min-width: 700px){ .nv-auto .nv-info{bottom:80px} }
+/* portrait: the hint must not run under the map buttons or the (i) attribution button */
+@media (orientation: portrait), (max-width: 699px){
+.nv-root .nv-hint{left:46px;right:58px;bottom:240px;text-align:center;border-radius:14px !important;line-height:1.3}
+}
