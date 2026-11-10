@@ -44,3 +44,8 @@ a{color:#1A7A43}a:hover{color:#125C31}
 @media (max-width: 420px){
 .nv-hud{gap:5px}
 }
+/* portrait phones: 5 map buttons must fit between the HUD and the dock */
+@media (orientation: portrait), (max-width: 699px){
+.nv-tools{gap:6px}
+.nv-toolbtn{width:40px;height:40px;border-radius:12px}
+}

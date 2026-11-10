@@ -12,7 +12,7 @@ export function Legend() {
       {row('flex: none; width: 26px; height: 14px; border-radius: 4px; background: #E8DED3', 'Mesto')}
       {row('flex: none; width: 26px; height: 14px; border-radius: 4px; background: #A8C78B', 'Les')}
       {row('flex: none; width: 26px; height: 14px; border-radius: 4px; background: #E8D9B5; opacity: 0.8', 'Stavba vo výstavbe')}
-      <span style="font-size: 11px; font-weight: 600; color: #4F5F68; line-height: 1.35">Mapa: © OpenStreetMap contributors, OpenFreeMap, © OpenMapTiles. Výšky terénu: Mapzen / AWS Terrain Tiles (SRTM, EU-DEM).</span>
+      <span style="font-size: 11px; font-weight: 600; color: #4F5F68; line-height: 1.35">Mapa: © OpenStreetMap contributors, OpenFreeMap, © OpenMapTiles. Výšky terénu: Mapzen / AWS Terrain Tiles (SRTM, EU-DEM). Satelit: Sentinel-2 cloudless (EOX, Copernicus).</span>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import border from '../data/sk-border.json';
 import rivers from '../data/rivers.json';
 import lakes from '../data/lakes.json';
 import { HOME, BOUNDS, minZoomFor } from './camera';
+import { addSatelliteLayer } from './basemap';
 
 maplibregl.setWorkerUrl(workerUrl);
 
@@ -75,6 +76,7 @@ function addGameLayers(map: MLMap) {
     id: 'hillshade', type: 'hillshade', source: 'dem-hs',
     paint: { 'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 6, 0.85, 10, 0.6, 14, 0.4], 'hillshade-shadow-color': '#3D4A3A', 'hillshade-highlight-color': '#FFFFFF', 'hillshade-accent-color': '#5A6B4A' }
   }, map.getLayer('building') ? 'building' : beforeLabels);
+  addSatelliteLayer(map);
   map.setSky({
     'sky-color': '#7FB3DD', 'horizon-color': '#D9E8F2', 'fog-color': '#E4EEF4',
     'sky-horizon-blend': 0.6, 'horizon-fog-blend': 0.6, 'fog-ground-blend': 0.35, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 6, 0.8, 12, 0.2]

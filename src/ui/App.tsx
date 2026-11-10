@@ -5,6 +5,7 @@ import type { Map as MLMap } from 'maplibre-gl';
 import { createMap } from '../map/map';
 import { homeCamera, isPortrait, viewAll, zoomBy } from '../map/camera';
 import { addOverlayLayers, setPlantFeatures } from '../map/layers';
+import { loadBasemapChoice, saveBasemapChoice, setBasemap, type Basemap } from '../map/basemap';
 import { PlantLayer } from '../models/three-layer';
 import { Game, type Plant } from '../sim/sim';
 import { hudData, plantInfo, type Hud as HudData, type PlantInfo, type Report } from '../sim/report';
@@ -47,6 +48,8 @@ export function App() {
   const [moving, setMoving] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [sel, setSel] = useState<PlantInfo | null>(null);
+  const [basemap, setBasemapState] = useState<Basemap>(loadBasemapChoice);
+  const switchBasemap = (m: Basemap) => { setBasemapState(m); saveBasemapChoice(m); if (mapRef.current) setBasemap(mapRef.current, m); };
 
   // state mirrored into refs for the animation loop / window listeners
   const st = useRef({ running, speed, modal });
@@ -94,6 +97,7 @@ export function App() {
         layer.isRunning = () => st.current.running && !st.current.modal;
         map.addLayer(layer, 'plants-label');
         layerRef.current = layer;
+        setBasemap(map, loadBasemapChoice());
         game.newGame();
         syncPlants(); refresh();
         setLoading(false);
@@ -262,6 +266,9 @@ export function App() {
       </div>
       <div class="nv-tools">
         <button class="nv-toolbtn" aria-label="Legenda mapy" aria-expanded={legendOpen} onClick={() => setLegendOpen(!legendOpen)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg></button>
+        <button class="nv-toolbtn" data-testid="basemap" title={basemap === 'sat' ? 'Bežná mapa' : 'Satelitná mapa'} style={basemap === 'sat' ? 'background: #1E2B33; color: #FFFFFF' : ''} aria-label={basemap === 'sat' ? 'Zobraziť bežnú mapu' : 'Zobraziť satelitnú mapu'} aria-pressed={basemap === 'sat'} onClick={() => switchBasemap(basemap === 'sat' ? 'map' : 'sat')}>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"></path><path d="m3 13 9 5 9-5"></path></svg>
+        </button>
         <button class="nv-toolbtn" aria-label="Priblížiť" onClick={() => map && zoomBy(map, 0.7)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
         <button class="nv-toolbtn" aria-label="Oddialiť" onClick={() => map && zoomBy(map, -0.7)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
         <button class="nv-toolbtn" aria-label="Zobraziť celé Slovensko" onClick={() => map && viewAll(map, viewPadding())}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"></path><path d="M9 4v13M15 7v13"></path></svg></button>

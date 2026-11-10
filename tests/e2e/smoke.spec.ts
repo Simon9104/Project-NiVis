@@ -46,6 +46,10 @@ test('mobile portrait: dock at the bottom, touch drag builds', async ({ page }) 
   await page.setViewportSize({ width: 390, height: 844 });
   await ready(page);
   await page.getByText('Preskočiť úvod').click();
+  await page.getByTestId('basemap').click();
+  expect(await page.evaluate(() => (window as any).__map.getLayoutProperty('satellite', 'visibility'))).toBe('visible');
+  await page.getByTestId('basemap').click();
+  expect(await page.evaluate(() => (window as any).__map.getLayoutProperty('satellite', 'visibility'))).toBe('none');
   const dock = await page.locator('.nv-dock').boundingBox();
   expect(dock!.y).toBeGreaterThan(500);
   expect(await dragTo(page, 'solar', [18.3, 48.0])).toContain('Solárny park');

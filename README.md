@@ -66,6 +66,10 @@ UI a mapa sa prekresľujú zo stavu. Náhodu sa dá podstrčiť (`new Game({ rng
   so zoomom, názvy riek kurzívou pozdĺž toku, vodné plochy #8EC3E6, menej POI, 3D budovy od zoomu 14.
 - Nad podkladom je herná vrstva riek a jazier – presne tie, s ktorými počítajú pravidlá (viditeľné hlavne pri malom zoome).
 - **Terén:** AWS Terrain Tiles (Terrarium), `exaggeration 1.4`, hillshade, obloha s hmlou.
+- **Satelit:** tlačidlo s vrstvami prepína podklad na satelitnú snímku (voľba sa pamätá v prehliadači). Bez kľúča
+  [Sentinel-2 cloudless 2025](https://s2maps.eu) od EOX (10 m/px, CC BY-NC-SA 4.0 – nekomerčné použitie), s kľúčom
+  `VITE_MAPTILER_KEY` ostrý MapTiler Satellite. Nad snímkou ostávajú 3D budovy z OSM, názvy, rieky, parky a elektrárne.
+  ZBGIS ortofoto (ÚGKK SR) by bolo najostrejšie, ale jeho služba nebola pri vývoji dostupná na overenie.
 - **Maska** mimo Slovenska (55 % priehľadná) + hraničná čiara. Národné parky sú vyznačené zelenou.
 - **Kamera:** štart na celé Slovensko (náklon 50°, natočenie −10°), stred kamery obmedzený na [16.3, 47.4] – [23.0, 49.9],
   zoom 6 – 16 (na mobile na výšku od 5, inak sa Slovensko nezmestí). Ťahanie = posun, pravé tlačidlo/Ctrl = otáčanie
@@ -98,6 +102,7 @@ počas stavby je model béžové lešenie a rastie. Výber elektrárne: nevidite
 
 ## Dáta a licencie
 - Mapa: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [OpenFreeMap](https://openfreemap.org), © [OpenMapTiles](https://www.openmaptiles.org/)
+- Satelit: [Sentinel-2 cloudless – s2maps.eu](https://s2maps.eu) by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2025), CC BY-NC-SA 4.0
 - Terén: [Mapzen / AWS Terrain Tiles](https://github.com/tilezen/joerd/blob/master/docs/attribution.md) (SRTM, EU-DEM, …)
 - Rieky, jazerá, mestá, národné parky, hranica: OpenStreetMap (cez Nominatim); doplnkovo Natural Earth (`reference/nivis-sk.json`)
 
