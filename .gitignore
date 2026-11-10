@@ -9,3 +9,8 @@ playwright-report
 *.log
 screenshots/
 screenshots.zip
+
+# optional background music provided by the server operator (never committed)
+public/music.mp3
+public/music.ogg
+public/music.m4a

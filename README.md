@@ -34,6 +34,13 @@ Workflow `.github/workflows/deploy.yml` pri pushi do `main` spustí testy, build
 V repozitári treba raz zapnúť **Settings → Pages → Source: GitHub Actions**. Build používa relatívne cesty
 (`base: './'`), takže funguje aj v podpriečinku `https://<user>.github.io/<repo>/`.
 
+### Hudba v pozadí (voliteľná)
+Repozitár neobsahuje žiadnu hudbu. Ak chceš na svojom serveri hudbu v pozadí, polož súbor `music.mp3`
+(alebo `music.ogg` / `music.m4a`) vedľa `index.html` v nasadenej stránke (pri vývoji do `public/`).
+Hra ho nájde sama, v hlavičke panelu stavieb sa objaví tlačidlo s notou a hudba sa spustí po prvom kliknutí
+(prehliadače blokujú automatické prehrávanie). Voľba zapnuté/vypnuté sa pamätá. Súbory sú v `.gitignore`,
+takže sa na GitHub nedostanú – za práva k použitej hudbe zodpovedá prevádzkovateľ servera.
+
 ## Architektúra
 
 ```

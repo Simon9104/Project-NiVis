@@ -18,6 +18,7 @@ import { InfoCard } from './InfoCard';
 import { Legend } from './Legend';
 import { Intro } from './Intro';
 import { YearReport } from './YearReport';
+import { Music } from './music';
 
 interface Tip { x: number; y: number; title: string; sub: string; bg: string }
 interface Drag { type: PlantType; mode: 'new' | 'press' | 'move'; plant?: Plant; sx?: number; sy?: number; ev?: Evaluation | null }
@@ -48,6 +49,10 @@ export function App() {
   const [moving, setMoving] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [sel, setSel] = useState<PlantInfo | null>(null);
+  const musicRef = useRef<Music | null>(null);
+  if (!musicRef.current) musicRef.current = new Music();
+  const [, setMusicTick] = useState(0);
+  useEffect(() => { const m = musicRef.current!; m.onChange = () => setMusicTick((t) => t + 1); m.init(); (window as any).__music = m; }, []);
   const [basemap, setBasemapState] = useState<Basemap>(loadBasemapChoice);
   const switchBasemap = (m: Basemap) => { setBasemapState(m); saveBasemapChoice(m); if (mapRef.current) setBasemap(mapRef.current, m); };
 
@@ -282,7 +287,7 @@ export function App() {
           <span style="font-size: 11px; font-weight: 700; opacity: 0.92">{tip.sub}</span>
         </div>
       )}
-      <Dock money={money} moving={moving} dockRef={dockRef} onStart={startNew} />
+      <Dock money={money} moving={moving} dockRef={dockRef} onStart={startNew} music={musicRef.current!.available ? { on: musicRef.current!.enabled, toggle: () => musicRef.current!.toggle() } : null} />
       {!loading && modal === 'intro' && <Intro step={introStep} onNext={modalAction} onBack={() => setIntroStep(Math.max(0, introStep - 1))} onSkip={() => { setModal(null); setRunning(true); setIntroStep(0); }} />}
       {!loading && modal === 'year' && report && <YearReport rep={report} picks={quizPicks} onPick={(q, o) => setQuizPicks({ ...quizPicks, [q]: o })} onAction={modalAction} />}
       {loading && (

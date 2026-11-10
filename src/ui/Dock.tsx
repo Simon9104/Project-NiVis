@@ -3,14 +3,22 @@ import type { Ref } from 'preact';
 import { CREDIT, ITEMS, fmtMoney, fmtNum, type PlantType } from '../sim/constants';
 import { ITEM_ICONS } from './icons';
 
-export interface DockProps { money: number; moving: boolean; dockRef: Ref<HTMLElement>; onStart: (type: PlantType, e: PointerEvent) => void }
+export interface DockProps { money: number; moving: boolean; dockRef: Ref<HTMLElement>; onStart: (type: PlantType, e: PointerEvent) => void; music?: { on: boolean; toggle: () => void } | null }
 
-export function Dock({ money, moving, dockRef, onStart }: DockProps) {
+export function Dock({ money, moving, dockRef, onStart, music }: DockProps) {
   return (
     <section ref={dockRef} class="nv-dock" aria-label="Stavby" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 -8px 24px rgba(20,40,60,0.16)">
       <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 0 4px; flex-wrap: wrap">
         <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 16px">Postav elektráreň</span>
-        <span style="font-size: 11.5px; font-weight: 700; color: #4F5F68">Potiahni ju na mapu</span>
+        <span style="display: flex; align-items: center; gap: 8px; margin-left: auto">
+          <span style="font-size: 11.5px; font-weight: 700; color: #4F5F68">Potiahni ju na mapu</span>
+          {music && (
+            <button data-testid="music" onClick={music.toggle} aria-pressed={music.on} aria-label={music.on ? 'Vypnúť hudbu' : 'Zapnúť hudbu'} title={music.on ? 'Vypnúť hudbu' : 'Zapnúť hudbu'}
+              style={`flex: none; width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: ${music.on ? '#1E2B33' : '#EEF2F4'}; color: ${music.on ? '#FFFFFF' : '#4F5F68'}`}>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="17" cy="16" r="3"></circle>{!music.on && <path d="M3 3l18 18"></path>}</svg>
+            </button>
+          )}
+        </span>
       </div>
       <div class="nv-cards">
         {ITEMS.map((it) => {
