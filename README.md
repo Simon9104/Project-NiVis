@@ -28,6 +28,11 @@ skopíruj `.env.example` do `.env` a doplň `VITE_MAPTILER_KEY` (súbor `.env` s
 
 Prečo nie claude.ai artefakt: tam sú externé požiadavky blokované, mapa potrebuje dlaždice z internetu.
 
+### Nasadenie na Vercel
+Repozitár obsahuje `vercel.json` (Vite, `npm run build`, výstup `dist/`). Stačí na vercel.com importovať
+repozitár – každý push do `main` sa nasadí automaticky. Nie je potrebná žiadna premenná prostredia
+(voliteľne `VITE_MAPTILER_KEY`).
+
 ### Nasadenie na GitHub Pages
 
 Workflow `.github/workflows/deploy.yml` pri pushi do `main` spustí testy, build a nasadí `dist/`.
